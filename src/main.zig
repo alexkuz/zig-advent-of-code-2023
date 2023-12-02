@@ -9,11 +9,20 @@ const stdout = bw.writer();
 
 
 pub fn main() !void {
+    var timer = try std.time.Timer.start();
+
+    // ===============
+
     const result1 = try day1();
     try stdout.print("Day 1: Part 1 = {d}, Part 2 = {d}\n", result1);
 
     const result2 = try day2();
-    try stdout.print("Day 1: Part 1 = {d}, Part 2 = {d}\n", result2);    
+    try stdout.print("Day 2: Part 1 = {d}, Part 2 = {d}\n", result2);
 
-    try bw.flush(); // don't forget to flush!
+    // ===============
+
+    const elapsed = timer.read();
+    try stdout.print("\nElapsed time: {d:.3} ms\n", .{ @as(f64, @floatFromInt(elapsed)) / 10E6 });
+
+    try bw.flush();
 }
