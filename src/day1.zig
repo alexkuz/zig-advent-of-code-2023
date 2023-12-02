@@ -1,4 +1,5 @@
 const std = @import("std");
+const LineReader = @import("./utils.zig").LineReader;
 
 pub fn day1() !struct {u32, u32} {
     const digits = [9]u8{
@@ -28,28 +29,14 @@ pub fn day1() !struct {u32, u32} {
     var part1: u32 = 0;
     var part2: u32 = 0;
 
-    var file = try std.fs.cwd().openFile("data/day1.txt", .{});
-    defer file.close();
-
-    var reader = std.io.bufferedReader(file.reader());
-    var stream = reader.reader();
     var buf: [1024]u8 = undefined;
-    var fbs = std.io.fixedBufferStream(&buf);
-    var writer = fbs.writer();
+
+    var reader = try LineReader.open("data/day1.txt", &buf);
+    defer reader.close();
 
     var n: u32 = 0;
-    
-    while (true): (n += 1) {
-        fbs.reset();
-        stream.streamUntilDelimiter(writer, '\n', 1024) catch |err| switch (err) {
-            error.EndOfStream => {
-                break;
-            },
-            else => |e| return e,
-        };
 
-        var line = fbs.getWritten();
-
+    while (try reader.next()) |line| : (n += 1) {
         var part2_found = false;
 
         var i: usize = 0;
