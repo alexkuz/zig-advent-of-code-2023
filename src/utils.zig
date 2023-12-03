@@ -5,44 +5,50 @@ const BufferedReader = std.io.BufferedReader;
 const File = std.fs.File;
 const FileReader = Reader(File, File.ReadError, File.read);
 const FileBufferedReader = BufferedReader(4096, FileReader);
-const FixedStream = std.io.FixedBufferStream([]u8);
 
 pub const LineReader = struct {
 	file: std.fs.File,
+	reader: *FileBufferedReader,
 	stream: Reader(*FileBufferedReader, FileReader.Error, FileBufferedReader.read),
-	fbs: FixedStream,
+	allocator: std.mem.Allocator,
+	buf: *[1024]u8,
 
 	const Self = @This();
 
-	pub fn open(path: []const u8, buf: *[1024]u8) !Self {
+	pub fn open(path: []const u8, allocator: std.mem.Allocator) !Self {
     var file = try std.fs.cwd().openFile(path, .{});
 
-	  var reader = std.io.bufferedReader(file.reader());
+    var reader = try allocator.create(FileBufferedReader);
+	  reader.* = std.io.bufferedReader(file.reader());
 	  var stream = reader.reader();
-	  var fbs = std.io.fixedBufferStream(buf);
+
+	  var buf = try allocator.create([1024]u8);
 
 	  return .{
 	  	.file = file,
-	  	.fbs = fbs,
-	  	.stream = stream
+	  	.stream = stream,
+	  	.reader = reader,
+	  	.allocator = allocator,
+	  	.buf = buf,
 	  };
 	}
 
 	pub fn next(self: *Self) !?[]const u8 {
-	  self.fbs.reset();
-	  var writer = self.fbs.writer();
-	  self.stream.streamUntilDelimiter(writer, '\n', 1024) catch |err| switch (err) {
-	      error.EndOfStream => if (self.fbs.getWritten().len == 0) {
+	  var fbs = std.io.fixedBufferStream(self.buf);
+	  self.stream.streamUntilDelimiter(fbs.writer(), '\n', 1024) catch |err| switch (err) {
+	      error.EndOfStream => if (fbs.getWritten().len == 0) {
 	          return null;
 	      },
 	      else => |e| return e,
 	  };
 
-	  var line = self.fbs.getWritten();
+	  var line = fbs.getWritten();
 	  return line;
 	}
 
 	pub fn close(self: *Self) void {
 		self.file.close();
+		self.allocator.destroy(self.reader);
+		self.allocator.destroy(self.buf);
 	}
 };

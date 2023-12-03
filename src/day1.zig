@@ -2,6 +2,7 @@ const std = @import("std");
 const LineReader = @import("./utils.zig").LineReader;
 
 pub fn day1() !struct {u32, u32} {
+    var allocator = std.heap.page_allocator;
     const digits = [9]u8{
         '1',
         '2',
@@ -29,9 +30,7 @@ pub fn day1() !struct {u32, u32} {
     var part1: u32 = 0;
     var part2: u32 = 0;
 
-    var buf: [1024]u8 = undefined;
-
-    var reader = try LineReader.open("data/day1.txt", &buf);
+    var reader = try LineReader.open("data/day1.txt", allocator);
     defer reader.close();
 
     var n: u32 = 0;

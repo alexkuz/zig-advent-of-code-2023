@@ -9,6 +9,7 @@ const Cubes = struct {
 const fields = std.meta.fields(Cubes);
 
 pub fn day2() !struct {u32, u32} {
+    var allocator = std.heap.page_allocator;
     var part1: u32 = 0;
     var part2: u32 = 0;
 
@@ -18,9 +19,7 @@ pub fn day2() !struct {u32, u32} {
         .blue = 14
     };
 
-    var buf: [1024]u8 = undefined;
-
-    var reader = try LineReader.open("data/day2.txt", &buf);
+    var reader = try LineReader.open("data/day2.txt", allocator);
     defer reader.close();
 
     var n: u32 = 0;
