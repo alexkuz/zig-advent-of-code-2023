@@ -3,6 +3,7 @@ const std = @import("std");
 const day1 = @import("./day1.zig").day1;
 const day2 = @import("./day2.zig").day2;
 const day3 = @import("./day3.zig").day3;
+const day4 = @import("./day4.zig").day4;
 
 const stdout_file = std.io.getStdOut().writer();
 var bw = std.io.bufferedWriter(stdout_file);
@@ -23,6 +24,8 @@ pub fn main() !void {
     try results.append(try day2());
 
     try results.append(try day3());
+
+    try results.append(try day4());
 
     for (results.items, 1..) |result, day| {
         try stdout.print("Day {d}: Part 1 = {d}, Part 2 = {d}\n", .{day,result[0],result[1]});        
