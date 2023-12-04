@@ -1,5 +1,6 @@
 const std = @import("std");
 const LineReader = @import("./utils.zig").LineReader;
+const Result = @import("./utils.zig").Result;
 
 const Cubes = struct {
     green: u32 = 1,
@@ -8,7 +9,7 @@ const Cubes = struct {
 };
 const fields = std.meta.fields(Cubes);
 
-pub fn day2() !struct {u32, u32} {
+pub fn day2() anyerror!Result {
     var allocator = std.heap.page_allocator;
     var part1: u32 = 0;
     var part2: u32 = 0;

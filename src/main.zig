@@ -1,14 +1,23 @@
 const std = @import("std");
+const Result = @import("./utils.zig").Result;
 
-const day1 = @import("./day1.zig").day1;
-const day2 = @import("./day2.zig").day2;
-const day3 = @import("./day3.zig").day3;
-const day4 = @import("./day4.zig").day4;
+const day_runs = [_]DayRun{
+    @import("./day1.zig").day1,
+    @import("./day2.zig").day2,
+    @import("./day3.zig").day3,
+    @import("./day4.zig").day4
+};
 
 const stdout_file = std.io.getStdOut().writer();
 var bw = std.io.bufferedWriter(stdout_file);
 const stdout = bw.writer();
 
+const DayRun = fn() anyerror!Result;
+
+fn task(run: anytype, result: *Result) void {
+    var res = run() catch unreachable;
+    result.* = res;
+}
 
 pub fn main() !void {
     var timer = try std.time.Timer.start();
@@ -16,19 +25,21 @@ pub fn main() !void {
     // ===============
 
     const allocator = std.heap.page_allocator;
-    var results = std.ArrayList(struct {u32,u32}).init(allocator);
-    defer results.deinit();
+    var results: [day_runs.len]*Result = undefined;
+    var threads: [day_runs.len]std.Thread = undefined;
 
-    try results.append(try day1());
+    var res: *Result = undefined;
 
-    try results.append(try day2());
+    inline for (day_runs, 0..) |dayRun, i| {
+        res = try allocator.create(Result);
 
-    try results.append(try day3());
+        results[i] = res;
+        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun, res});
+    }
 
-    try results.append(try day4());
-
-    for (results.items, 1..) |result, day| {
-        try stdout.print("Day {d}: Part 1 = {d}, Part 2 = {d}\n", .{day,result[0],result[1]});        
+    for (results, 0..) |result, i| {
+        threads[i].join();
+        try stdout.print("Day {d}: Part 1 = {d}, Part 2 = {d}\n", .{i+1,result[0],result[1]});
     }
 
     // ===============

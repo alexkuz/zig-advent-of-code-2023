@@ -1,7 +1,8 @@
 const std = @import("std");
 const LineReader = @import("./utils.zig").LineReader;
+const Result = @import("./utils.zig").Result;
 
-pub fn day1() !struct {u32, u32} {
+pub fn day1() anyerror!Result {
     var allocator = std.heap.page_allocator;
     const digits = [9]u8{
         '1',

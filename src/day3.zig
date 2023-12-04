@@ -1,5 +1,6 @@
 const std = @import("std");
 const LineReader = @import("./utils.zig").LineReader;
+const Result = @import("./utils.zig").Result;
 
 const Number = struct {
     num: u32,
@@ -17,7 +18,7 @@ const GearMap = std.AutoHashMap(struct{usize,usize}, *Gear);
 
 const len = 140;
 
-pub fn day3() !struct {u32, u32} {
+pub fn day3() anyerror!Result {
     var part1: u32 = 0;
     var part2: u32 = 0;
     var allocator = std.heap.page_allocator;
