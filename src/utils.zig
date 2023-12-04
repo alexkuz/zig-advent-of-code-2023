@@ -6,7 +6,11 @@ const File = std.fs.File;
 const FileReader = Reader(File, File.ReadError, File.read);
 const FileBufferedReader = BufferedReader(4096, FileReader);
 
-pub const Result = struct {u32,u32};
+pub const Result = struct {
+	part1: u32,
+	part2: u32,
+	time: u64
+};
 
 pub const LineReader = struct {
 	file: std.fs.File,

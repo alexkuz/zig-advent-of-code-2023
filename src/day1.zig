@@ -2,34 +2,21 @@ const std = @import("std");
 const LineReader = @import("./utils.zig").LineReader;
 const Result = @import("./utils.zig").Result;
 
+const text_digits = [9][]const u8{
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine"
+};
+
 pub fn day1() anyerror!Result {
     var allocator = std.heap.page_allocator;
-    const digits = [9]u8{
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9'
-    };
-
-    const text_digits = [9][]const u8{
-        "one",
-        "two",
-        "three",
-        "four",
-        "five",
-        "six",
-        "seven",
-        "eight",
-        "nine"
-    };
-
-    var part1: u32 = 0;
-    var part2: u32 = 0;
+    var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day1.txt", allocator);
     defer reader.close();
@@ -41,22 +28,20 @@ pub fn day1() anyerror!Result {
 
         var i: usize = 0;
         outer: while(i < line.len) : (i += 1) {
-            for (digits, 1..) |digit, k| {
-                if (digit == line[i]) {
-                    part1 += @as(u8, @intCast(k)) * 10;
-                    if (!part2_found) {
-                       part2 += @as(u8, @intCast(k)) * 10;
-                    }
-                    break :outer;
+            if (line[i] >= '0' and line[i] <= '9') {
+                result.part1 += (line[i] - '0') * 10;
+                if (!part2_found) {
+                   result.part2 += (line[i] - '0') * 10;
                 }
+                break :outer;                
             }
 
             if (part2_found) continue;
 
-            for (text_digits, 1..) |digit, k| {
+            inline for (text_digits, 1..) |digit, k| {
                 if (line.len >= i + digit.len) {
                     if (std.mem.eql(u8, line[i .. i + digit.len], digit)) {
-                        part2 += @as(u8, @intCast(k)) * 10;
+                        result.part2 += @as(u8, @intCast(k)) * 10;
                         part2_found = true;
                     }
                 }
@@ -68,22 +53,20 @@ pub fn day1() anyerror!Result {
         i = line.len;
         outer: while(i != 0) {
             i -= 1;
-            for (digits, 1..) |digit, k| {
-                if (digit == line[i]) {
-                    part1 += @as(u8, @intCast(k));
-                    if (!part2_found) {
-                        part2 += @as(u8, @intCast(k));
-                    }
-                    break :outer;
+            if (line[i] >= '0' and line[i] <= '9') {
+                result.part1 += line[i] - '0';
+                if (!part2_found) {
+                    result.part2 += line[i] - '0';
                 }
+                break :outer;
             }
 
             if (part2_found) continue;
 
-            for (text_digits, 1..) |digit, k| {
+            inline for (text_digits, 1..) |digit, k| {
                 if (line.len >= i + digit.len) {
                     if (std.mem.eql(u8, line[i .. i + digit.len], digit)) {
-                        part2 += @as(u8, @intCast(k));
+                        result.part2 += @intCast(k);
                         part2_found = true;
                     }
                 }
@@ -91,5 +74,5 @@ pub fn day1() anyerror!Result {
         }
     }
 
-    return .{ part1, part2 };
+    return result;
 }

@@ -19,9 +19,8 @@ const GearMap = std.AutoHashMap(struct{usize,usize}, *Gear);
 const len = 140;
 
 pub fn day3() anyerror!Result {
-    var part1: u32 = 0;
-    var part2: u32 = 0;
     var allocator = std.heap.page_allocator;
+    var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day3.txt", allocator);
     defer reader.close();
@@ -79,7 +78,7 @@ pub fn day3() anyerror!Result {
         }
 
         if (n > 0) {
-            part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
+            result.part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
         }
 
         prev_line_numbers = try line_numbers.clone();
@@ -88,7 +87,7 @@ pub fn day3() anyerror!Result {
     @memcpy(symbols[0][0..len], symbols[1][0..len]);
     @memcpy(symbols[1][0..len], symbols[2][0..len]);
     symbols[2] = std.mem.zeroes([len]u8);
-    part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
+    result.part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
 
     var it = gears.iterator();
 
@@ -96,11 +95,11 @@ pub fn day3() anyerror!Result {
         var gear = entry.value_ptr;
 
         if (gear.*.count == 2) {
-            part2 += gear.*.left_part * gear.*.right_part;
+            result.part2 += gear.*.left_part * gear.*.right_part;
         }
     }
 
-    return .{ part1, part2 };
+    return result;
 }
 
 fn sumValidNumbers(allocator: std.mem.Allocator, line: usize, numbers: std.ArrayList(Number), symbols: [3][len]u8, gears: *GearMap) !u32 {

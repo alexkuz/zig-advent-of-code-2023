@@ -11,8 +11,7 @@ const fields = std.meta.fields(Cubes);
 
 pub fn day2() anyerror!Result {
     var allocator = std.heap.page_allocator;
-    var part1: u32 = 0;
-    var part2: u32 = 0;
+    var result: Result = std.mem.zeroes(Result);
 
     var total_cubes = Cubes{
         .red = 12,
@@ -55,12 +54,12 @@ pub fn day2() anyerror!Result {
         }
 
         if (possible) {
-            part1 += game_no;
+            result.part1 += game_no;
         }
 
         var power = min_cubes.red * min_cubes.green * min_cubes.blue;
-        part2 += power;
+        result.part2 += power;
     }
 
-    return .{ part1, part2 };
+    return result;
 }

@@ -4,8 +4,7 @@ const Result = @import("./utils.zig").Result;
 
 pub fn day4() anyerror!Result {
     var allocator = std.heap.page_allocator;
-    var part1: u32 = 0;
-    var part2: u32 = 0;
+    var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day4.txt", allocator);
     defer reader.close();
@@ -37,12 +36,12 @@ pub fn day4() anyerror!Result {
             copies[n + i + 1] += (1 + copies[n]);
         }
 
-        part1 += points;
+        result.part1 += points;
     }
 
     for (copies) |count| {
-        part2 += 1 + count;
+        result.part2 += 1 + count;
     }
 
-    return .{ part1, part2 };
+    return result;
 }

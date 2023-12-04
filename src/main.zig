@@ -15,8 +15,10 @@ const stdout = bw.writer();
 const DayRun = fn() anyerror!Result;
 
 fn task(run: anytype, result: *Result) void {
+    var timer = std.time.Timer.start() catch unreachable;
     var res = run() catch unreachable;
     result.* = res;
+    result.time = timer.read();
 }
 
 pub fn main() !void {
@@ -39,7 +41,12 @@ pub fn main() !void {
 
     for (results, 0..) |result, i| {
         threads[i].join();
-        try stdout.print("Day {d}: Part 1 = {d}, Part 2 = {d}\n", .{i+1,result[0],result[1]});
+        try stdout.print("Day {d:>2}: Part 1 = {d:>8}, Part 2 = {d:>8} ({d:.3} ms)\n", .{
+            i+1,
+            result.part1,
+            result.part2,
+            @as(f64, @floatFromInt(result.time)) / 10E6
+        });
     }
 
     // ===============
