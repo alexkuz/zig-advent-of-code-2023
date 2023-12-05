@@ -7,8 +7,8 @@ const FileReader = Reader(File, File.ReadError, File.read);
 const FileBufferedReader = BufferedReader(4096, FileReader);
 
 pub const Result = struct {
-	part1: u32,
-	part2: u32,
+	part1: u64,
+	part2: u64,
 	time: u64
 };
 

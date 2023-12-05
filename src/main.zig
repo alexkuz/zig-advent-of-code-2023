@@ -5,7 +5,8 @@ const day_runs = [_]DayRun{
     @import("./day1.zig").day1,
     @import("./day2.zig").day2,
     @import("./day3.zig").day3,
-    @import("./day4.zig").day4
+    @import("./day4.zig").day4,
+    @import("./day5.zig").day5,
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -41,7 +42,7 @@ pub fn main() !void {
 
     for (results, 0..) |result, i| {
         threads[i].join();
-        try stdout.print("Day {d:>2}: Part 1 = {d:>8}, Part 2 = {d:>8} ({d:.3} ms)\n", .{
+        try stdout.print("Day {d:>2}: Part 1 = {d:>10}, Part 2 = {d:>8} ({d:.3} ms)\n", .{
             i+1,
             result.part1,
             result.part2,
