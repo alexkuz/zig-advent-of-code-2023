@@ -3,18 +3,19 @@ const LineReader = @import("./utils.zig").LineReader;
 const Result = @import("./utils.zig").Result;
 
 const Number = struct {
-    num: u32,
+    num: u16,
+    line: usize,
     pos: usize,
     len: usize
 };
 
-const Gear = struct {
+const Symbol = struct {
+    left_part: u16,
+    right_part: u16,
     count: u8,
-    left_part: u32,
-    right_part: u32,
+    gear: bool
 };
 
-const GearMap = std.AutoHashMap(struct{usize,usize}, *Gear);
 
 const len = 140;
 
@@ -27,25 +28,17 @@ pub fn day3() anyerror!Result {
 
     var n: u32 = 0;
 
-    var symbol_lines = std.ArrayList([len]u8).init(allocator);
-    defer symbol_lines.deinit();
+    var numbers = std.ArrayList(Number).init(allocator);
+    defer numbers.deinit();
 
-    var symbols: [3][len]u8 = std.mem.zeroes([3][len]u8);
+    var symbol_loc = std.mem.zeroes([len][len]usize);
 
-    var prev_line_numbers: std.ArrayList(Number) = undefined;
-
-    var gears = GearMap.init(allocator);
-    defer gears.deinit();
+    var symbols = std.ArrayList(Symbol).init(allocator);
+    defer symbols.deinit();
 
     while (try reader.next()) |line| : (n += 1) {
-        @memcpy(symbols[0][0..len], symbols[1][0..len]);
-        @memcpy(symbols[1][0..len], symbols[2][0..len]);
-
-        var line_numbers = std.ArrayList(Number).init(allocator);
-        defer line_numbers.deinit();
-
         var start_pos: usize = 0;
-        var cur_number: u32 = 0;
+        var cur_number: u16 = 0;
         var num_len: usize = 0;
 
         for (line, 0..) |char, pos| {
@@ -58,88 +51,63 @@ pub fn day3() anyerror!Result {
                     cur_number += char - '0';
                 }
                 num_len += 1;
-                symbols[2][pos] = 0;
             } else {
                 if (cur_number > 0) {
-                    try line_numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len});
+                    try numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len, .line = n});
                     start_pos = 0;
                     cur_number = 0;
                     num_len = 0;
                 }
                 if (char != '.') {
-                    symbols[2][pos] = char;
-                } else {
-                    symbols[2][pos] = 0;
+                    try symbols.append(Symbol{.count = 0, .left_part = 0, .right_part = 0, .gear = char == '*'});
+                    symbol_loc[n][pos] = symbols.items.len;
                 }
             }
         }
         if (cur_number > 0) {
-            try line_numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len});
-        }
-
-        if (n > 0) {
-            result.part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
-        }
-
-        prev_line_numbers = try line_numbers.clone();
-    }
-
-    @memcpy(symbols[0][0..len], symbols[1][0..len]);
-    @memcpy(symbols[1][0..len], symbols[2][0..len]);
-    symbols[2] = std.mem.zeroes([len]u8);
-    result.part1 += try sumValidNumbers(allocator, n, prev_line_numbers, symbols, &gears);
-
-    var it = gears.iterator();
-
-    while (it.next()) |entry| {
-        var gear = entry.value_ptr;
-
-        if (gear.*.count == 2) {
-            result.part2 += gear.*.left_part * gear.*.right_part;
+            try numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len, .line = n});
         }
     }
-
-    return result;
-}
-
-fn sumValidNumbers(allocator: std.mem.Allocator, line: usize, numbers: std.ArrayList(Number), symbols: [3][len]u8, gears: *GearMap) !u32 {
-    var sum: u32 = 0;
 
     for (numbers.items) |number| {
-        // std.debug.print("Number: {}\n", .{number});
-        var min_pos = if (number.pos == 0) 0 else number.pos - 1;
-        var max_pos = @min(len-1, number.pos + number.len + 1);
-
-        num: for(min_pos..max_pos) |i| {
-            for (symbols, 0..) |symbol_line, l| {
-                if (line + l < 2) {
-                    continue;
-                }
-                var gear_line = line + l - 2;
-                if (symbol_line[i] != 0) {
-                    sum += number.num;
-                    if (symbol_line[i] == '*') {
-                        var val = try gears.getOrPut(.{gear_line, i});
-                        if (val.found_existing) {
-                            val.value_ptr.*.count += 1;
-                            val.value_ptr.*.right_part = number.num;
-                        } else {
-                            var gear = try allocator.create(Gear);
-                            errdefer allocator.destroy(gear);
-
-                            gear.* = .{
-                                .count = 1,
-                                .left_part = number.num,
-                                .right_part = 0,
-                            };
-                            val.value_ptr.* = gear;
+        var symbol_found = false;
+        inline for (0..5) |p| {
+            if (p > 0 or number.pos > 0) {
+                var pos = number.pos + p - 1;
+                if (pos < len and p < number.len + 2) { 
+                    inline for (0..3) |l| {
+                        if (l > 0 or number.line > 0) {
+                            var ln = number.line + l - 1;
+                            if (ln < n) {
+                                var idx = symbol_loc[ln][pos];
+                                if (idx > 0) {
+                                    var sym = &symbols.items[idx - 1];
+                                    if (sym.gear) {
+                                        sym.count += 1;
+                                        if (sym.count > 1) {
+                                            sym.right_part = number.num;
+                                        } else {
+                                            sym.left_part = number.num;
+                                        }
+                                    }
+                                    if (!symbol_found) {
+                                        result.part1 += number.num;
+                                        symbol_found = true;
+                                    }
+                                }
+                            }
                         }
                     }
-                    break :num;
                 }
             }
         }
     }
 
-    return sum;
+    for (symbols.items) |symbol| {
+        if (symbol.gear and symbol.count == 2) {
+            result.part2 += @as(u32,symbol.left_part) * @as(u32,symbol.right_part);
+        }
+    }
+
+    return result;
 }
