@@ -13,9 +13,14 @@ pub fn day4() anyerror!Result {
 
     var copies: [213]u32 = std.mem.zeroes([213]u32);
 
+    var colon_idx: usize = 0;
+    var bar_idx: usize = 0;
+
     while (try reader.next()) |line| : (n += 1) {
-        var colon_idx = std.mem.indexOf(u8, line, ":").?;
-        var bar_idx = std.mem.indexOf(u8, line, "|").?;
+        if (colon_idx == 0) {
+            colon_idx = std.mem.indexOf(u8, line, ":").?;
+            bar_idx = std.mem.indexOf(u8, line, "|").?;
+        }
         var win_numbers = line[colon_idx+2..bar_idx-1];
         var card_numbers = line[bar_idx+2..];
 
