@@ -20,7 +20,7 @@ pub fn day5() anyerror!Result {
     var seeds: [20]u64 = undefined;
     var seed_mapped: [20]bool = undefined;
     var seed_ranges = std.ArrayList(SeedSlice).init(allocator);
-    var next_seed_ranges: std.ArrayList(SeedSlice) = std.ArrayList(SeedSlice).init(allocator);
+    defer seed_ranges.deinit();
 
     var first_line = (try reader.next()).?;
 
@@ -37,13 +37,10 @@ pub fn day5() anyerror!Result {
     while (try reader.next()) |line| : (n += 1) {
         if (line.len == 0) continue;
         if (line[0] > '9' or line[0] < '0') {
-            seed_mapped = std.mem.zeroes([20]bool);
-            for (seed_ranges.items) |seed_range| {
-                if (!seed_range.used) try next_seed_ranges.append(seed_range);
+            for (seed_ranges.items) |*seed_range| {
+                seed_range.used = false;
             }
-            seed_ranges.deinit();
-            seed_ranges = next_seed_ranges;
-            next_seed_ranges = std.ArrayList(SeedSlice).init(allocator);
+            seed_mapped = std.mem.zeroes([20]bool);
             continue;
         }
 
@@ -85,19 +82,13 @@ pub fn day5() anyerror!Result {
 
             var start = @max(seed_range.start,source_start);
             var end = @min(seed_range.start + seed_range.len,source_start + range_len);
-            try next_seed_ranges.append(.{
+            seed_ranges.items[i] = .{
                 .start = start - source_start + dest_start,
                 .len = end - start,
-                .used = false
-            });
+                .used = true
+            };
         }
     }
-
-    for (seed_ranges.items) |seed_range| {
-        if (!seed_range.used) try next_seed_ranges.append(seed_range);
-    }
-    seed_ranges.deinit();
-    seed_ranges = next_seed_ranges;
 
     result.part1 = seeds[0];
 
@@ -110,7 +101,6 @@ pub fn day5() anyerror!Result {
     for (seed_ranges.items) |seed_range| {
         result.part2 = @min(result.part2, seed_range.start);
     }
-    seed_ranges.deinit();
 
     return result;
 }
