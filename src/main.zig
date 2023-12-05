@@ -15,6 +15,23 @@ const stdout = bw.writer();
 
 const DayRun = fn() anyerror!Result;
 
+const ESC = "\x1b[";
+const GRAY = ESC ++ "1;30m";
+const RED = ESC ++ "1;31m";
+const GREEN = ESC ++ "1;32m";
+const YELLOW = ESC ++ "1;33m";
+const CYAN = ESC ++ "1;36m";
+const RESET = ESC ++ "0m";
+
+const RED_STAR = RED ++ "*" ++ RESET;
+const GREEN_STAR = GREEN ++ "*" ++ RESET;
+
+const TITLE = "\n" ++
+    (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 5 ++
+    GREEN ++ "Advent of Code 2023" ++
+    (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 5 ++
+    "\n\n";
+
 fn task(run: anytype, result: *Result) void {
     var timer = std.time.Timer.start() catch unreachable;
     var res = run() catch unreachable;
@@ -23,6 +40,8 @@ fn task(run: anytype, result: *Result) void {
 }
 
 pub fn main() !void {
+    try stdout.print(TITLE, .{});
+
     var timer = try std.time.Timer.start();
 
     // ===============
@@ -42,18 +61,26 @@ pub fn main() !void {
 
     for (results, 0..) |result, i| {
         threads[i].join();
-        try stdout.print("Day {d:>2}: Part 1 = {d:>10}, Part 2 = {d:>8} ({d:.3} ms)\n", .{
+        try stdout.print("{s}Day {d:>2}:{s} {s}Part 1{s} = {d:>10}, {s}Part 2{s} = {d:>10} {s}({d:.3} ms){s}\n", .{
+            YELLOW,
             i+1,
+            RESET,
+            CYAN,
+            RESET,
             result.part1,
+            CYAN,
+            RESET,
             result.part2,
-            @as(f64, @floatFromInt(result.time)) / 10E6
+            GRAY,
+            @as(f64, @floatFromInt(result.time)) / 10E6,
+            RESET,
         });
     }
 
     // ===============
 
     const elapsed = timer.read();
-    try stdout.print("\nElapsed time: {d:.3} ms\n", .{ @as(f64, @floatFromInt(elapsed)) / 10E6 });
+    try stdout.print("\n{s}Elapsed time:{s} {d:.3} ms\n", .{ YELLOW, RESET, @as(f64, @floatFromInt(elapsed)) / 10E6 });
 
     try bw.flush();
 }
