@@ -18,6 +18,7 @@ const stdout = bw.writer();
 const DayRun = fn() anyerror!Result;
 
 const ESC = "\x1b[";
+const WHITE = ESC ++ "1m";
 const GRAY = ESC ++ "1;30m";
 const RED = ESC ++ "1;31m";
 const GREEN = ESC ++ "1;32m";
@@ -28,11 +29,9 @@ const RESET = ESC ++ "0m";
 const RED_STAR = RED ++ "*" ++ RESET;
 const GREEN_STAR = GREEN ++ "*" ++ RESET;
 
-const TITLE = "\n" ++
-    (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 5 ++
+const TITLE = RED_STAR ++ " " ++ (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 3 ++
     GREEN ++ "Advent of Code 2023" ++
-    (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 5 ++
-    "\n\n";
+    (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 3 ++ " " ++ RED_STAR;
 
 fn task(run: anytype, result: *Result) void {
     var timer = std.time.Timer.start() catch unreachable;
@@ -42,7 +41,11 @@ fn task(run: anytype, result: *Result) void {
 }
 
 pub fn main() !void {
-    try stdout.print(TITLE, .{});
+    try stdout.print("╭─────────────────────────────────────────────────╮\n", .{});
+    try stdout.print("│ {s} │\n", .{TITLE});
+    try stdout.print("├────────┬───────────────┬───────────────┬────────┤\n", .{});
+    try stdout.print("│        │        {s}Part 1{s} │        {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
+    try stdout.print("├────────┼───────────────┼───────────────┼────────┤\n", .{});
 
     var timer = try std.time.Timer.start();
 
@@ -61,28 +64,44 @@ pub fn main() !void {
         threads[i] = try std.Thread.spawn(.{}, task, .{dayRun, res});
     }
 
+    var totalTime: u64 = 0;
+
     for (results, 0..) |result, i| {
         threads[i].join();
-        try stdout.print("{s}Day {d:>2}:{s} {s}Part 1{s} = {d:>10}, {s}Part 2{s} = {d:>10} {s}({d:.3} ms){s}\n", .{
+        totalTime += result.time;
+        try stdout.print("│ {s}Day {d:<2}{s} │ {d:>13} │ {d:>13} │ {s}{d:>3.0} μs{s} │\n", .{
             YELLOW,
             i+1,
             RESET,
-            CYAN,
-            RESET,
             result.part1,
-            CYAN,
-            RESET,
             result.part2,
             GRAY,
-            @as(f64, @floatFromInt(result.time)) / 10E6,
+            @as(f64, @floatFromInt(result.time)) / 10E3,
             RESET,
         });
     }
 
+    try stdout.print("├────────┼───────────────┴───────────────┴────────┤\n", .{});
+
     // ===============
 
     const elapsed = timer.read();
-    try stdout.print("\n{s}Elapsed time:{s} {d:.3} ms\n", .{ YELLOW, RESET, @as(f64, @floatFromInt(elapsed)) / 10E6 });
+    var buf: [100]u8 = undefined;
+    var timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
+        WHITE,
+        @as(f64, @floatFromInt(elapsed)) / 10E3,
+        RESET,
+        WHITE,
+        @as(f64, @floatFromInt(totalTime)) / 10E3,
+        RESET
+    });
+    try stdout.print("│ {s}Time{s}   │ {s:<54} │\n", .{
+        YELLOW,
+        RESET,
+        timeStr
+    });
+
+    try stdout.print("╰────────┴────────────────────────────────────────╯\n", .{});
 
     try bw.flush();
 }
