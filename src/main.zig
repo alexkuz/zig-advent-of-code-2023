@@ -9,6 +9,7 @@ const day_runs = [_]DayRun{
     @import("./day5.zig").day5,
     @import("./day6.zig").day6,
     @import("./day7.zig").day7,
+    @import("./day8.zig").day8,
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -41,11 +42,11 @@ fn task(run: anytype, result: *Result) void {
 }
 
 pub fn main() !void {
-    try stdout.print("╭─────────────────────────────────────────────────╮\n", .{});
-    try stdout.print("│ {s} │\n", .{TITLE});
-    try stdout.print("├────────┬───────────────┬───────────────┬────────┤\n", .{});
-    try stdout.print("│        │        {s}Part 1{s} │        {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
-    try stdout.print("├────────┼───────────────┼───────────────┼────────┤\n", .{});
+    try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
+    try stdout.print("│  {s}  │\n", .{TITLE});
+    try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
+    try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
+    try stdout.print("├────────┼────────────────┼────────────────┼────────┤\n", .{});
 
     var timer = try std.time.Timer.start();
 
@@ -69,7 +70,7 @@ pub fn main() !void {
     for (results, 0..) |result, i| {
         threads[i].join();
         totalTime += result.time;
-        try stdout.print("│ {s}Day {d:<2}{s} │ {d:>13} │ {d:>13} │ {s}{d:>3.0} μs{s} │\n", .{
+        try stdout.print("│ {s}Day {d:<2}{s} │ {d:>14} │ {d:>14} │ {s}{d:>3.0} μs{s} │\n", .{
             YELLOW,
             i+1,
             RESET,
@@ -81,7 +82,7 @@ pub fn main() !void {
         });
     }
 
-    try stdout.print("├────────┼───────────────┴───────────────┴────────┤\n", .{});
+    try stdout.print("├────────┼────────────────┴────────────────┴────────┤\n", .{});
 
     // ===============
 
@@ -95,13 +96,13 @@ pub fn main() !void {
         @as(f64, @floatFromInt(totalTime)) / 10E3,
         RESET
     });
-    try stdout.print("│ {s}Time{s}   │ {s:<54} │\n", .{
+    try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{
         YELLOW,
         RESET,
         timeStr
     });
 
-    try stdout.print("╰────────┴────────────────────────────────────────╯\n", .{});
+    try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
 
     try bw.flush();
 }
