@@ -1,6 +1,6 @@
 const std = @import("std");
-const LineReader = @import("./utils.zig").LineReader;
-const Result = @import("./utils.zig").Result;
+const LineReader = @import("utils.zig").LineReader;
+const Result = @import("utils.zig").Result;
 
 const Number = struct {
     num: u16,

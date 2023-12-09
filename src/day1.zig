@@ -1,6 +1,6 @@
 const std = @import("std");
-const LineReader = @import("./utils.zig").LineReader;
-const Result = @import("./utils.zig").Result;
+const LineReader = @import("utils.zig").LineReader;
+const Result = @import("utils.zig").Result;
 
 const text_digits = [9][]const u8{
     "one",
