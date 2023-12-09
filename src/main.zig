@@ -1,20 +1,19 @@
 const std = @import("std");
-const Result = @import("./utils.zig").Result;
+const Result = @import("utils.zig").Result;
 
 const day_runs = [_]DayRun{
-    @import("./day1.zig").day1,
-    @import("./day2.zig").day2,
-    @import("./day3.zig").day3,
-    @import("./day4.zig").day4,
-    @import("./day5.zig").day5,
-    @import("./day6.zig").day6,
-    @import("./day7.zig").day7,
-    @import("./day8.zig").day8,
+    @import("day1.zig").day1,
+    @import("day2.zig").day2,
+    @import("day3.zig").day3,
+    @import("day4.zig").day4,
+    @import("day5.zig").day5,
+    @import("day6.zig").day6,
+    @import("day7.zig").day7,
+    @import("day8.zig").day8,
+    @import("day9.zig").day9,
 };
 
 const stdout_file = std.io.getStdOut().writer();
-var bw = std.io.bufferedWriter(stdout_file);
-const stdout = bw.writer();
 
 const DayRun = fn() anyerror!Result;
 
@@ -42,6 +41,9 @@ fn task(run: anytype, result: *Result) void {
 }
 
 pub fn main() !void {
+    var bw = std.io.bufferedWriter(stdout_file);
+    const stdout = bw.writer();
+
     try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
     try stdout.print("│  {s}  │\n", .{TITLE});
     try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
@@ -70,12 +72,17 @@ pub fn main() !void {
     for (results, 0..) |result, i| {
         threads[i].join();
         totalTime += result.time;
-        try stdout.print("│ {s}Day {d:<2}{s} │ {d:>14} │ {d:>14} │ {s}{d:>3.0} μs{s} │\n", .{
+        var buf1: [32]u8 = undefined;
+        var buf2: [32]u8 = undefined;
+        var part1 = try printNumber(result.part1, &buf1);
+        var part2 = try printNumber(result.part2, &buf2);
+
+        try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{d:>3.0} μs{s} │\n", .{
             YELLOW,
             i+1,
             RESET,
-            result.part1,
-            result.part2,
+            part1,
+            part2,
             GRAY,
             @as(f64, @floatFromInt(result.time)) / 10E3,
             RESET,
@@ -105,4 +112,12 @@ pub fn main() !void {
     try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
 
     try bw.flush();
+}
+
+fn printNumber(num: i64, buf: []u8) ![]u8 {
+    if (num > 0) {
+        return try std.fmt.bufPrint(buf, "{d:>14}", .{@as(u64,@intCast(num))});
+    } else {
+        return try std.fmt.bufPrint(buf, "{d:>14}", .{num});
+    }
 }

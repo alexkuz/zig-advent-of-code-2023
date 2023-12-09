@@ -114,7 +114,7 @@ pub fn day8() anyerror!Result {
     }
     var lcm = mul / gcd;
 
-    result.part2 = lcm * directions.len;
+    result.part2 = @intCast(lcm * directions.len);
 
     return result;
 }

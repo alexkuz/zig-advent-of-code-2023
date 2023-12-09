@@ -84,15 +84,22 @@ pub fn day7() anyerror!Result {
 
     std.sort.pdq(HandBid, items, {}, compareHands1);
 
+    var sum1: u64 = 0;
+    var sum2: u64 = 0;
+
     for (items, 1..) |hand, i| {
-        result.part1 += i * hand.bid;
+        sum1 += i * hand.bid;
     }
+
+    result.part1 = @intCast(sum1);
 
     std.sort.pdq(HandBid, items, {}, compareHands2);
 
     for (items, 1..) |hand, i| {
-        result.part2 += i * hand.bid;
+        sum2 += i * hand.bid;
     }
+
+    result.part2 = @intCast(sum2);
 
     return result;
 }

@@ -90,17 +90,19 @@ pub fn day5() anyerror!Result {
         }
     }
 
-    result.part1 = seeds[0];
+    var res1: u64 = seeds[0];
+    var res2: u64 = seed_ranges.items[0].start;
 
     for (seeds) |seed| {
-        result.part1 = @min(result.part1, seed);
+        res1 = @min(res1, seed);
     }
-
-    result.part2 = seed_ranges.items[0].start;
 
     for (seed_ranges.items) |seed_range| {
-        result.part2 = @min(result.part2, seed_range.start);
+        res2 = @min(res2, seed_range.start);
     }
+
+    result.part1 = @intCast(res1);
+    result.part2 = @intCast(res2);
 
     return result;
 }

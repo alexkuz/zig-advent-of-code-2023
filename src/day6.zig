@@ -38,10 +38,10 @@ pub fn day6() anyerror!Result {
 
     for (times.items, 0..) |time, i| {
         var distance = distances.items[i];
-        result.part1 *= calcTimeRange(time, distance);
+        result.part1 *= @intCast(calcTimeRange(time, distance));
     }
 
-    result.part2 = calcTimeRange(total_time, total_distance);
+    result.part2 = @intCast(calcTimeRange(total_time, total_distance));
 
     return result;
 }
