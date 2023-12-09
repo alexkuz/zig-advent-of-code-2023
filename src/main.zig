@@ -41,20 +41,31 @@ fn task(run: anytype, result: *Result) void {
 }
 
 pub fn main() !void {
+    const allocator = std.heap.page_allocator;
+    var no_print = false;
+
+    var args = try std.process.argsWithAllocator(allocator);
+    while (args.next()) |arg| {
+        if (std.mem.eql(u8, arg, "--no-print")) {
+            no_print = true;
+        }
+    }
+
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
 
-    try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
-    try stdout.print("│  {s}  │\n", .{TITLE});
-    try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
-    try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
-    try stdout.print("├────────┼────────────────┼────────────────┼────────┤\n", .{});
+    if (!no_print) {
+        try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
+        try stdout.print("│  {s}  │\n", .{TITLE});
+        try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
+        try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
+        try stdout.print("├────────┼────────────────┼────────────────┼────────┤\n", .{});
+    }
 
     var timer = try std.time.Timer.start();
 
     // ===============
 
-    const allocator = std.heap.page_allocator;
     var results: [day_runs.len]*Result = undefined;
     var threads: [day_runs.len]std.Thread = undefined;
 
@@ -72,44 +83,47 @@ pub fn main() !void {
     for (results, 0..) |result, i| {
         threads[i].join();
         totalTime += result.time;
-        var buf1: [32]u8 = undefined;
-        var buf2: [32]u8 = undefined;
-        var part1 = try printNumber(result.part1, &buf1);
-        var part2 = try printNumber(result.part2, &buf2);
 
-        try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{d:>3.0} μs{s} │\n", .{
-            YELLOW,
-            i+1,
-            RESET,
-            part1,
-            part2,
-            GRAY,
-            @as(f64, @floatFromInt(result.time)) / 10E3,
-            RESET,
-        });
+        if (!no_print) {
+            var buf1: [32]u8 = undefined;
+            var buf2: [32]u8 = undefined;
+            var part1 = try printNumber(result.part1, &buf1);
+            var part2 = try printNumber(result.part2, &buf2);
+
+            try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{d:>3.0} μs{s} │\n", .{
+                YELLOW,
+                i+1,
+                RESET,
+                part1,
+                part2,
+                GRAY,
+                @as(f64, @floatFromInt(result.time)) / 10E3,
+                RESET,
+            });
+        }
     }
 
-    try stdout.print("├────────┼────────────────┴────────────────┴────────┤\n", .{});
+    if (!no_print) {
+        try stdout.print("├────────┼────────────────┴────────────────┴────────┤\n", .{});
 
-    // ===============
+        const elapsed = timer.read();
+        var buf: [100]u8 = undefined;
+        var timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
+            WHITE,
+            @as(f64, @floatFromInt(elapsed)) / 10E3,
+            RESET,
+            WHITE,
+            @as(f64, @floatFromInt(totalTime)) / 10E3,
+            RESET
+        });
+        try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{
+            YELLOW,
+            RESET,
+            timeStr
+        });
 
-    const elapsed = timer.read();
-    var buf: [100]u8 = undefined;
-    var timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
-        WHITE,
-        @as(f64, @floatFromInt(elapsed)) / 10E3,
-        RESET,
-        WHITE,
-        @as(f64, @floatFromInt(totalTime)) / 10E3,
-        RESET
-    });
-    try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{
-        YELLOW,
-        RESET,
-        timeStr
-    });
-
-    try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
+        try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
+    }
 
     try bw.flush();
 }
