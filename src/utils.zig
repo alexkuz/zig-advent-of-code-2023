@@ -6,6 +6,8 @@ const File = std.fs.File;
 const FileReader = Reader(File, File.ReadError, File.read);
 const FileBufferedReader = BufferedReader(4096, FileReader);
 
+pub const AppAllocator = std.heap.c_allocator;
+
 pub const Result = struct {
 	part1: i64,
 	part2: i64,

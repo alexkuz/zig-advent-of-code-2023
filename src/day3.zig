@@ -19,8 +19,7 @@ const Symbol = struct {
 
 const len = 140;
 
-pub fn day3() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day3(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day3.txt", allocator);

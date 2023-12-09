@@ -2,8 +2,7 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-pub fn day4() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day4(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day4.txt", allocator);

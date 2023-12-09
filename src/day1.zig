@@ -14,8 +14,7 @@ const text_digits = [9][]const u8{
     "nine"
 };
 
-pub fn day1() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day1(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day1.txt", allocator);

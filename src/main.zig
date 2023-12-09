@@ -1,5 +1,6 @@
 const std = @import("std");
 const Result = @import("utils.zig").Result;
+const AppAllocator = @import("utils.zig").AppAllocator;
 
 const day_runs = [_]DayRun{
     @import("day1.zig").day1,
@@ -15,7 +16,7 @@ const day_runs = [_]DayRun{
 
 const stdout_file = std.io.getStdOut().writer();
 
-const DayRun = fn() anyerror!Result;
+const DayRun = fn(allocator: std.mem.Allocator) anyerror!Result;
 
 const ESC = "\x1b[";
 const WHITE = ESC ++ "1m";
@@ -33,15 +34,15 @@ const TITLE = RED_STAR ++ " " ++ (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 3 ++
     GREEN ++ "Advent of Code 2023" ++
     (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 3 ++ " " ++ RED_STAR;
 
-fn task(run: anytype, result: *Result) void {
+fn task(run: anytype, result: *Result, allocator: std.mem.Allocator) void {
     var timer = std.time.Timer.start() catch unreachable;
-    var res = run() catch unreachable;
+    var res = run(allocator) catch unreachable;
     result.* = res;
     result.time = timer.read();
 }
 
 pub fn main() !void {
-    const allocator = std.heap.page_allocator;
+    const allocator = AppAllocator;
     var no_print = false;
 
     var args = try std.process.argsWithAllocator(allocator);
@@ -75,7 +76,7 @@ pub fn main() !void {
         res = try allocator.create(Result);
 
         results[i] = res;
-        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun, res});
+        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun, res, allocator});
     }
 
     var totalTime: u64 = 0;

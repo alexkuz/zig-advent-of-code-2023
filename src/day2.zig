@@ -9,8 +9,7 @@ const Cubes = struct {
 };
 const fields = std.meta.fields(Cubes);
 
-pub fn day2() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day2(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var total_cubes = Cubes{

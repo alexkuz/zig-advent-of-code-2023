@@ -5,8 +5,7 @@ const Result = @import("utils.zig").Result;
 const Int = i32;
 const NumArray = std.ArrayList(Int);
 
-pub fn day9() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day9(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day9.txt", allocator);
@@ -21,18 +20,13 @@ pub fn day9() anyerror!Result {
 
     while (try reader.next()) |line| : (n += 1) {
         var it = std.mem.tokenizeScalar(u8, line, ' ');
-        var sequence = NumArray.init(allocator);
-        defer sequence.deinit();
+
+        var len: usize = 0;
 
         while (it.next()) |str| {
             var num = try std.fmt.parseInt(Int, str, 10);
-            try sequence.append(num);
-        }
-        
-        var len = sequence.items.len;
-
-        for (sequence.items, 0..) |num, i| {
-            seq_list[0][i] = num;
+            seq_list[0][len] = num;
+            len += 1;
         }
 
         var seq_no: u32 = 1;

@@ -31,8 +31,7 @@ const Node = packed struct {
 const len = 'Z' - 'A' + 1;
 const final = Name.fromString("ZZZ".*);
 
-pub fn day8() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day8(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day8.txt", allocator);

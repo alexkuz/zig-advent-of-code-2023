@@ -8,8 +8,7 @@ const SeedSlice = struct{
     used: bool
 };
 
-pub fn day5() anyerror!Result {
-    var allocator = std.heap.page_allocator;
+pub fn day5(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var reader = try LineReader.open("data/day5.txt", allocator);
@@ -21,6 +20,8 @@ pub fn day5() anyerror!Result {
     var seed_mapped: [20]bool = undefined;
     var seed_ranges = std.ArrayList(SeedSlice).init(allocator);
     defer seed_ranges.deinit();
+
+    try seed_ranges.ensureTotalCapacity(256);
 
     var first_line = (try reader.next()).?;
 
@@ -82,6 +83,7 @@ pub fn day5() anyerror!Result {
 
             var start = @max(seed_range.start,source_start);
             var end = @min(seed_range.start + seed_range.len,source_start + range_len);
+
             seed_ranges.items[i] = .{
                 .start = start - source_start + dest_start,
                 .len = end - start,
