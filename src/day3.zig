@@ -72,13 +72,13 @@ pub fn day3(allocator: std.mem.Allocator) anyerror!Result {
         var symbol_found = false;
         inline for (0..5) |p| {
             if (p > 0 or number.pos > 0) {
-                var pos = number.pos + p - 1;
+                const pos = number.pos + p - 1;
                 if (pos < len and p < number.len + 2) { 
                     inline for (0..3) |l| {
                         if (l > 0 or number.line > 0) {
-                            var ln = number.line + l - 1;
+                            const ln = number.line + l - 1;
                             if (ln < n) {
-                                var idx = symbol_loc[ln][pos];
+                                const idx = symbol_loc[ln][pos];
                                 if (idx > 0) {
                                     var sym = &symbols.items[idx - 1];
                                     if (sym.gear) {

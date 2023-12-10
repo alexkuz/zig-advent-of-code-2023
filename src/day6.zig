@@ -20,7 +20,7 @@ pub fn day6(allocator: std.mem.Allocator) anyerror!Result {
 
     line = std.mem.trim(u8, line, " ");
     std.mem.replaceScalar(u8, @constCast(line), ' ', '_');
-    var total_time = try std.fmt.parseInt(u64, line, 10);
+    const total_time = try std.fmt.parseInt(u64, line, 10);
 
     line = (try reader.next()).?;
     line = line[(std.mem.indexOf(u8, line, ":").?+2)..];
@@ -31,12 +31,12 @@ pub fn day6(allocator: std.mem.Allocator) anyerror!Result {
 
     line = std.mem.trim(u8, line, " ");
     std.mem.replaceScalar(u8, @constCast(line), ' ', '_');
-    var total_distance = try std.fmt.parseInt(u64, line, 10);
+    const total_distance = try std.fmt.parseInt(u64, line, 10);
 
     result.part1 = 1;
 
     for (times.items, 0..) |time, i| {
-        var distance = distances.items[i];
+        const distance = distances.items[i];
         result.part1 *= @intCast(calcTimeRange(time, distance));
     }
 
@@ -47,8 +47,8 @@ pub fn day6(allocator: std.mem.Allocator) anyerror!Result {
 
 fn calcTimeRange(time: u64, distance: u64) u64 {
     // t ^ 2 - time * t + dist = 0 => t = ...
-    var sqrt = @sqrt(@as(f64,@floatFromInt(time * time - 4 * distance)));
-    var f_time: f64 = @floatFromInt(time);
+    const sqrt = @sqrt(@as(f64,@floatFromInt(time * time - 4 * distance)));
+    const f_time: f64 = @floatFromInt(time);
     var min_time: u64 = @intFromFloat(@ceil((f_time - sqrt) / 2.0));
     var max_time: u64 = @intFromFloat(@floor((f_time + sqrt) / 2.0));
 

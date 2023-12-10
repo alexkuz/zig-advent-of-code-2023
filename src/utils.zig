@@ -28,9 +28,9 @@ pub const LineReader = struct {
 
     var reader = try allocator.create(FileBufferedReader);
 	  reader.* = std.io.bufferedReader(file.reader());
-	  var stream = reader.reader();
+	  const stream = reader.reader();
 
-	  var buf = try allocator.create([1024]u8);
+	  const buf = try allocator.create([1024]u8);
 
 	  return .{
 	  	.file = file,
@@ -50,7 +50,7 @@ pub const LineReader = struct {
 	      else => |e| return e,
 	  };
 
-	  var line = fbs.getWritten();
+	  const line = fbs.getWritten();
 	  return line;
 	}
 

@@ -42,8 +42,8 @@ pub fn day7(allocator: std.mem.Allocator) anyerror!Result {
 
     while (try reader.next()) |line| : (n += 1) {
         var it = std.mem.tokenizeScalar(u8, line, ' ');
-        var hand = it.next().?;
-        var bid = try std.fmt.parseInt(u10, it.next().?, 10);
+        const hand = it.next().?;
+        const bid = try std.fmt.parseInt(u10, it.next().?, 10);
         var sortedHand: [cardNames.len]Card = std.mem.zeroes([cardNames.len]Card);
 
         var jokerCount: u4 = 0;
@@ -51,7 +51,7 @@ pub fn day7(allocator: std.mem.Allocator) anyerror!Result {
         var indexedHand:[5]u4 = undefined;
 
         for (hand, 0..) |card, i| {
-            var cardIdx = cardMap[card];
+            const cardIdx = cardMap[card];
             sortedHand[cardIdx].cardIdx = cardMap[card];
             sortedHand[cardIdx].count += 1;
             if (card == 'J') jokerCount += 1;
@@ -60,16 +60,16 @@ pub fn day7(allocator: std.mem.Allocator) anyerror!Result {
 
         std.sort.pdq(Card, &sortedHand, {}, compareCards);
 
-        var part1maxCount1 = sortedHand[0].count;
-        var part1maxCount2 = sortedHand[1].count;
+        const part1maxCount1 = sortedHand[0].count;
+        const part1maxCount2 = sortedHand[1].count;
 
         var part2maxCount1 = if (sortedHand[0].cardIdx == jokerIdx) sortedHand[1].count else sortedHand[0].count;
-        var part2maxCount2 = if (sortedHand[1].cardIdx == jokerIdx) sortedHand[2].count else sortedHand[1].count;
+        const part2maxCount2 = if (sortedHand[1].cardIdx == jokerIdx) sortedHand[2].count else sortedHand[1].count;
 
         part2maxCount1 += jokerCount;
 
-        var handType1 = getHandType(part1maxCount1, part1maxCount2);
-        var handType2 = getHandType(part2maxCount1, part2maxCount2);
+        const handType1 = getHandType(part1maxCount1, part1maxCount2);
+        const handType2 = getHandType(part2maxCount1, part2maxCount2);
 
         try hands.append(.{
             .hand = indexedHand,
@@ -79,7 +79,7 @@ pub fn day7(allocator: std.mem.Allocator) anyerror!Result {
         });
     }
 
-    var items = hands.items;
+    const items = hands.items;
 
     std.sort.pdq(HandBid, items, {}, compareHands1);
 
@@ -140,7 +140,7 @@ pub fn compareHands1(_: void, a: HandBid, b: HandBid) bool {
     }
 
     for (a.hand, 0..) |aCard, i| {
-        var bCard = b.hand[i];
+        const bCard = b.hand[i];
         if (aCard != bCard) {
             return aCard < bCard;
         }
@@ -155,7 +155,7 @@ pub fn compareHands2(_: void, a: HandBid, b: HandBid) bool {
     }
 
     for (a.hand, 0..) |aCard, i| {
-        var bCard = b.hand[i];
+        const bCard = b.hand[i];
         if (aCard == bCard) continue;
         if (aCard == jokerIdx) return true;
         if (bCard == jokerIdx) return false;

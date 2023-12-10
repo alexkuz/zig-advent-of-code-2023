@@ -36,7 +36,7 @@ const TITLE = RED_STAR ++ " " ++ (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 3 ++
 
 fn task(run: anytype, result: *Result, allocator: std.mem.Allocator) void {
     var timer = std.time.Timer.start() catch unreachable;
-    var res = run(allocator) catch unreachable;
+    const res = run(allocator) catch unreachable;
     result.* = res;
     result.time = timer.read();
 }
@@ -88,8 +88,8 @@ pub fn main() !void {
         if (!no_print) {
             var buf1: [32]u8 = undefined;
             var buf2: [32]u8 = undefined;
-            var part1 = try printNumber(result.part1, &buf1);
-            var part2 = try printNumber(result.part2, &buf2);
+            const part1 = try printNumber(result.part1, &buf1);
+            const part2 = try printNumber(result.part2, &buf2);
 
             try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{d:>3.0} μs{s} │\n", .{
                 YELLOW,
@@ -109,7 +109,7 @@ pub fn main() !void {
 
         const elapsed = timer.read();
         var buf: [100]u8 = undefined;
-        var timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
+        const timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
             WHITE,
             @as(f64, @floatFromInt(elapsed)) / 10E3,
             RESET,

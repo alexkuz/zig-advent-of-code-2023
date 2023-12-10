@@ -24,7 +24,7 @@ pub fn day9(allocator: std.mem.Allocator) anyerror!Result {
         var len: usize = 0;
 
         while (it.next()) |str| {
-            var num = try std.fmt.parseInt(Int, str, 10);
+            const num = try std.fmt.parseInt(Int, str, 10);
             seq_list[0][len] = num;
             len += 1;
         }
@@ -33,10 +33,10 @@ pub fn day9(allocator: std.mem.Allocator) anyerror!Result {
 
         while (seq_no < seq_list.len) : (seq_no += 1) {
             var all_equal = true;
-            var first = seq_list[seq_no - 1][1] - seq_list[seq_no - 1][0];
+            const first = seq_list[seq_no - 1][1] - seq_list[seq_no - 1][0];
             seq_list[seq_no][0] = first;
             for (0..(len - seq_no)) |i| {
-                var curr = seq_list[seq_no - 1][i + 1] - seq_list[seq_no - 1][i];
+                const curr = seq_list[seq_no - 1][i + 1] - seq_list[seq_no - 1][i];
                 seq_list[seq_no][i] = curr;
                 if (curr != first) {
                     all_equal = false;
@@ -51,7 +51,7 @@ pub fn day9(allocator: std.mem.Allocator) anyerror!Result {
         var last_num2: Int = seq_list[seq_no][0];
 
         for (0..seq_no) |i| {
-            var seq_back_no = seq_no - i - 1;
+            const seq_back_no = seq_no - i - 1;
             last_num1 = seq_list[seq_back_no][len - seq_back_no - 1] + last_num1;
             last_num2 = seq_list[seq_back_no][0] - last_num2;
         }

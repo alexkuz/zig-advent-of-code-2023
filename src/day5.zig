@@ -46,9 +46,9 @@ pub fn day5(allocator: std.mem.Allocator) anyerror!Result {
         }
 
         var it1 = std.mem.split(u8, line, " ");
-        var dest_start = try std.fmt.parseInt(u64, it1.next().?, 10);
-        var source_start = try std.fmt.parseInt(u64, it1.next().?, 10);
-        var range_len = try std.fmt.parseInt(u64, it1.next().?, 10);
+        const dest_start = try std.fmt.parseInt(u64, it1.next().?, 10);
+        const source_start = try std.fmt.parseInt(u64, it1.next().?, 10);
+        const range_len = try std.fmt.parseInt(u64, it1.next().?, 10);
 
         for (seeds, 0..) |seed, idx| {
             if (seed_mapped[idx]) continue;
@@ -58,7 +58,7 @@ pub fn day5(allocator: std.mem.Allocator) anyerror!Result {
             }
         }
 
-        var len = seed_ranges.items.len;
+        const len = seed_ranges.items.len;
         for (0..len) |i| {
             var seed_range = &seed_ranges.items[i];
             if (seed_range.used) continue;
@@ -81,8 +81,8 @@ pub fn day5(allocator: std.mem.Allocator) anyerror!Result {
                 }); 
             }
 
-            var start = @max(seed_range.start,source_start);
-            var end = @min(seed_range.start + seed_range.len,source_start + range_len);
+            const start = @max(seed_range.start,source_start);
+            const end = @min(seed_range.start + seed_range.len,source_start + range_len);
 
             seed_ranges.items[i] = .{
                 .start = start - source_start + dest_start,

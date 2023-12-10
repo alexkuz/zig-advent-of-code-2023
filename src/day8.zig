@@ -56,7 +56,7 @@ pub fn day8(allocator: std.mem.Allocator) anyerror!Result {
 
     while (try reader.next()) |line| : (n += 1) {
         if (line.len == 0) continue;
-        var route: Route = .{
+        const route: Route = .{
             .left = Name.fromString(line[7..10].*),
             .right = Name.fromString(line[12..15].*),
         };
@@ -79,11 +79,11 @@ pub fn day8(allocator: std.mem.Allocator) anyerror!Result {
     var final_count: u8 = 0;
 
     while(step < 10E5) : (step += 1) {
-        var dir = directions[step % directions.len];
+        const dir = directions[step % directions.len];
 
         for (nodes.items, 0..) |*node, i| {
-            var name = node.name;
-            var route = routeMap[name.a][name.b][name.c];
+            const name = node.name;
+            const route = routeMap[name.a][name.b][name.c];
             var next = if (dir == 0) route.left else route.right;
 
             node.name = next;
@@ -111,7 +111,7 @@ pub fn day8(allocator: std.mem.Allocator) anyerror!Result {
         gcd = std.math.gcd(gcd, nodes.items[i].cycle_count);
         mul *= nodes.items[i].cycle_count;
     }
-    var lcm = mul / gcd;
+    const lcm = mul / gcd;
 
     result.part2 = @intCast(lcm * directions.len);
 
