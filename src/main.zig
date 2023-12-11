@@ -13,6 +13,7 @@ const day_runs = [_]DayRun{
     @import("day8.zig").day8,
     @import("day9.zig").day9,
     @import("day10.zig").day10,
+    @import("day11.zig").day11,
 };
 
 const stdout_file = std.io.getStdOut().writer();
