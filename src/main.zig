@@ -12,6 +12,7 @@ const day_runs = [_]DayRun{
     @import("day7.zig").day7,
     @import("day8.zig").day8,
     @import("day9.zig").day9,
+    @import("day10.zig").day10,
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -130,7 +131,7 @@ pub fn main() !void {
 }
 
 fn printNumber(num: i64, buf: []u8) ![]u8 {
-    if (num > 0) {
+    if (num >= 0) {
         return try std.fmt.bufPrint(buf, "{d:>14}", .{@as(u64,@intCast(num))});
     } else {
         return try std.fmt.bufPrint(buf, "{d:>14}", .{num});
