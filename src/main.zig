@@ -47,11 +47,15 @@ fn task(run: anytype, result: *Result, allocator: std.mem.Allocator) void {
 pub fn main() !void {
     const allocator = AppAllocator;
     var no_print = false;
+    var no_spoilers = false;
 
     var args = try std.process.argsWithAllocator(allocator);
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "--no-print")) {
             no_print = true;
+        }
+        if (std.mem.eql(u8, arg, "--no-spoilers")) {
+            no_spoilers = true;
         }
     }
 
@@ -91,8 +95,8 @@ pub fn main() !void {
         if (!no_print) {
             var buf1: [32]u8 = undefined;
             var buf2: [32]u8 = undefined;
-            const part1 = try printNumber(result.part1, &buf1);
-            const part2 = try printNumber(result.part2, &buf2);
+            const part1 = if (no_spoilers) "*" ** 14 else try printNumber(result.part1, &buf1);
+            const part2 = if (no_spoilers) "*" ** 14 else try printNumber(result.part2, &buf2);
 
             var buf: [10]u8 = undefined;
             var time_str: []u8 = undefined;
