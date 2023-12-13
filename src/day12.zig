@@ -2,6 +2,8 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
+const HashFn = std.hash.XxHash3;
+
 const HashInt = u64;
 const MaskInt = u104;
 const VarInt = u44;
@@ -9,7 +11,29 @@ const CountInt = u5;
 
 const MapSize = 100000;
 
-const SolvedHashMap = std.AutoHashMap(HashInt, VarInt);
+const HashMapContext = struct {
+    pub fn hash(_: HashMapContext, key: u64) u64 {
+        return key;
+    }
+    pub fn eql(_: HashMapContext, a: u64, b: u64) bool {
+        return a == b;
+    }
+};
+
+const HashKey = packed struct{
+    mask_all: u20,
+    mask_none: u20,
+    len: u8,
+    count1: CountInt,
+    count2: CountInt,
+    count3: CountInt,
+    count4: CountInt,
+    count5: CountInt,
+    count6: CountInt,
+    shift: u5
+};
+
+const SolvedHashMap = std.hash_map.HashMap(HashInt, VarInt, HashMapContext, std.hash_map.default_max_load_percentage);
 
 pub fn day12(allocator: std.mem.Allocator) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -90,8 +114,6 @@ pub fn day12(allocator: std.mem.Allocator) anyerror!Result {
 
 const CACHED_SHIFT = 1;
 
-const count_hash_factor: [6]u8 = [6]u8{7,11,13,17,19,29};
-
 fn getVariants(solved: *SolvedHashMap, mask_all: MaskInt, mask_none: MaskInt, len: u8, counts: []CountInt, sum: u8, shift: u5) !VarInt {
     var variants: VarInt = 0;
 
@@ -102,32 +124,27 @@ fn getVariants(solved: *SolvedHashMap, mask_all: MaskInt, mask_none: MaskInt, le
     const mask_all_base: MaskInt = mask_all & ((1 << 20) - 1);
     const mask_none_base: MaskInt = mask_none & ((1 << 20) - 1);
 
-    const len_hash: HashInt = @as(HashInt,len) << 24;
+    const hash_key = HashFn.hash(0, std.mem.asBytes(&HashKey{
+        .mask_all = @truncate(mask_all_base),
+        .mask_none = @truncate(mask_none_base),
+        .len = len,
+        .count1 = if (counts.len > 0) counts[0] else 0,
+        .count2 = if (counts.len > 1) counts[1] else 0,
+        .count3 = if (counts.len > 2) counts[2] else 0,
+        .count4 = if (counts.len > 3) counts[3] else 0,
+        .count5 = if (counts.len > 4) counts[4] else 0,
+        .count6 = if (counts.len > 5) counts[5] else 0,
+        .shift = shift
+    }));
 
-    //cheating 
-    var hash_key: HashInt = @truncate((mask_all_base * 5 + mask_none_base * 7) | len_hash);
-
-    hash_key |= counts.len << 32;
-    
-    var count_hash_sum: HashInt = 0;
-    for (0..@min(counts.len,6)) |i| {
-        // more cheating
-        count_hash_sum += @as(HashInt, counts[i]) * count_hash_factor[i];
-    }            
-
-    const count_hash: HashInt = count_hash_sum << 37;
-    hash_key |= count_hash;
-
-    hash_key |= @as(HashInt,shift) << 47;
-
-    if (shift > CACHED_SHIFT) {
+    const max_pos: u8 = @truncate(len - (sum + counts.len - 1) + 1);
+     if (shift > CACHED_SHIFT) {
         if (solved.get(hash_key)) |value| {
             return value;
         }
     }
 
-    const max_pos: u8 = @truncate(len - (sum + counts.len - 1) + 1);
-    const count: CountInt = counts[0];
+   const count: CountInt = counts[0];
     // ???.###
     // mask_all  = 1110111
     // mask_none = 0000111
