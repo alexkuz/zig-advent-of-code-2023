@@ -14,6 +14,7 @@ const day_runs = [_]DayRun{
     @import("day9.zig").day9,
     @import("day10.zig").day10,
     @import("day11.zig").day11,
+    @import("day12.zig").day12,
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -93,14 +94,22 @@ pub fn main() !void {
             const part1 = try printNumber(result.part1, &buf1);
             const part2 = try printNumber(result.part2, &buf2);
 
-            try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{d:>3.0} μs{s} │\n", .{
+            var buf: [10]u8 = undefined;
+            var time_str: []u8 = undefined;
+            if (result.time >= 10E6) {
+                time_str = try std.fmt.bufPrint(&buf, "{d:>3.1} ms", .{@as(f64, @floatFromInt(result.time)) / 10E6});
+            } else {
+                time_str = try std.fmt.bufPrint(&buf, "{d:>3.0} μs", .{@as(f64, @floatFromInt(result.time)) / 10E3});
+            }
+
+            try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{s}{s} │\n", .{
                 YELLOW,
                 i+1,
                 RESET,
                 part1,
                 part2,
                 GRAY,
-                @as(f64, @floatFromInt(result.time)) / 10E3,
+                time_str,
                 RESET,
             });
         }
