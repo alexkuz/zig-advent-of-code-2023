@@ -1,7 +1,6 @@
 const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
-const testResult = @import("utils.zig").testResult;
 
 const HashFn = std.hash.XxHash3;
 
@@ -185,6 +184,8 @@ fn printTransMap(rock_table: [100]u100, cube_table: [100]u100, size: u8) void {
     }
     std.debug.print("\n=======\n\n", .{});
 }
+
+const testResult = @import("utils.zig").testResult;
 
 test "day14" {
     try testResult("test-data/day14.txt", day14, .Part1, 136);

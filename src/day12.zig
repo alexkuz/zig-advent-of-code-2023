@@ -186,3 +186,10 @@ fn getVariants(solved: *SolvedHashMap, mask_all: MaskInt, mask_none: MaskInt, le
 
     return variants;
 }
+
+const testResult = @import("utils.zig").testResult;
+
+test "day12" {
+    try testResult("test-data/day12.txt", day12, .Part1, 21);
+    try testResult("test-data/day12.txt", day12, .Part2, 525152);
+}

@@ -1,7 +1,6 @@
 const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
-const testResult = @import("utils.zig").testResult;
 
 const text_digits = [9][]const u8{
     "one",
@@ -74,6 +73,8 @@ pub fn day1(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
     return result;
 }
+
+const testResult = @import("utils.zig").testResult;
 
 test "day1" {
     try testResult("test-data/day1-1.txt", day1, .Part1, 142);

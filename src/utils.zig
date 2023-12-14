@@ -21,7 +21,7 @@ pub const TestLineReader = struct {
 	pub fn init(text: []const u8) !LineReader {
 		return .{
 			.test_reader = .{
-				.lines = std.mem.splitScalar(u8, text, '\n')
+				.lines = std.mem.splitScalar(u8, std.mem.trimRight(u8, text, "\n"), '\n')
 			}
 		};
 	}

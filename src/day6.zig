@@ -6,7 +6,9 @@ pub fn day6(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
 
     var times = std.ArrayList(u64).init(allocator);
+    defer times.deinit();
     var distances = std.ArrayList(u64).init(allocator);
+    defer distances.deinit();
 
     var line = (try reader.next()).?;
     line = line[(std.mem.indexOf(u8, line, ":").?+2)..];
@@ -54,4 +56,11 @@ fn calcTimeRange(time: u64, distance: u64) u64 {
         max_time -= 1;
     }
     return max_time - min_time + 1;
+}
+
+const testResult = @import("utils.zig").testResult;
+
+test "day6" {
+    try testResult("test-data/day6.txt", day6, .Part1, 288);
+    try testResult("test-data/day6.txt", day6, .Part2, 71503);
 }

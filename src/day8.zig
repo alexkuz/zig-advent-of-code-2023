@@ -6,7 +6,7 @@ const Name = packed struct{
     a:u5,
     b:u5,
     c:u5,
-    pub fn fromString(str: [3]u8) Name {
+    pub fn fromString(str: []const u8) Name {
         return .{
             .a = @as(u5,@truncate(str[0]-'A')),
             .b = @as(u5,@truncate(str[1]-'A')),
@@ -29,7 +29,7 @@ const Node = packed struct {
 };
 
 const len = 'Z' - 'A' + 1;
-const final = Name.fromString("ZZZ".*);
+const final = Name.fromString("ZZZ");
 
 pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -54,8 +54,8 @@ pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     while (try reader.next()) |line| : (n += 1) {
         if (line.len == 0) continue;
         const route: Route = .{
-            .left = Name.fromString(line[7..10].*),
-            .right = Name.fromString(line[12..15].*),
+            .left = Name.fromString(line[7..10]),
+            .right = Name.fromString(line[12..15]),
         };
         routeMap[line[0] - 'A'][line[1] - 'A'][line[2] - 'A'] = route;
         if (line[2] == 'A') {
@@ -63,7 +63,7 @@ pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
                 aaaIdx = nodes.items.len;
             }
             try nodes.append(.{
-                .name = Name.fromString(line[0..3].*),
+                .name = Name.fromString(line[0..3]),
                 .cycle_count = 0
             });
         }
@@ -113,4 +113,11 @@ pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     result.part2 = @intCast(lcm * directions.len);
 
     return result;
+}
+
+const testResult = @import("utils.zig").testResult;
+
+test "day8" {
+    try testResult("test-data/day8.txt", day8, .Part1, 2);
+    try testResult("test-data/day8.txt", day8, .Part2, 2);
 }

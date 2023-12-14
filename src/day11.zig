@@ -121,3 +121,9 @@ pub fn day11(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
     return result;
 }
+
+const testResult = @import("utils.zig").testResult;
+
+test "day11" {
+    try testResult("test-data/day11.txt", day11, .Part1, 374);
+}

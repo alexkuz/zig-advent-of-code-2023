@@ -161,3 +161,10 @@ pub fn compareHands2(_: void, a: HandBid, b: HandBid) bool {
 
     return false;
 }
+
+const testResult = @import("utils.zig").testResult;
+
+test "day7" {
+    try testResult("test-data/day7.txt", day7, .Part1, 6440);
+    try testResult("test-data/day7.txt", day7, .Part2, 5905);
+}

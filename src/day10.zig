@@ -170,3 +170,10 @@ fn getNextPosition(curr: usize, prev: usize, table: []Pipe, table_size: usize) !
 
     return error.DirectionNotFound;
 }
+
+const testResult = @import("utils.zig").testResult;
+
+test "day10" {
+    try testResult("test-data/day10-1.txt", day10, .Part1, 8);
+    try testResult("test-data/day10-2.txt", day10, .Part2, 10);
+}

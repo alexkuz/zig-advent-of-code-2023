@@ -1,6 +1,5 @@
 const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
-const testResult = @import("utils.zig").testResult;
 const Result = @import("utils.zig").Result;
 
 pub fn day13(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
@@ -115,9 +114,9 @@ fn findMirror(items: []u20, with_smudge: bool) u8 {
     return idx;
 }
 
+const testResult = @import("utils.zig").testResult;
+
 test "day13" {
-    const allocator = std.testing.allocator;
-    _ = allocator;
     try testResult("test-data/day13.txt", day13, .Part1, 405);
     try testResult("test-data/day13.txt", day13, .Part2, 400);
 }
