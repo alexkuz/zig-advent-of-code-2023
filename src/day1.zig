@@ -1,6 +1,7 @@
 const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
+const testResult = @import("utils.zig").testResult;
 
 const text_digits = [9][]const u8{
     "one",
@@ -14,11 +15,9 @@ const text_digits = [9][]const u8{
     "nine"
 };
 
-pub fn day1(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day1(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
+    _ = allocator;
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day1.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 
@@ -74,4 +73,9 @@ pub fn day1(allocator: std.mem.Allocator) anyerror!Result {
     }
 
     return result;
+}
+
+test "day1" {
+    try testResult("test-data/day1-1.txt", day1, .Part1, 142);
+    try testResult("test-data/day1-2.txt", day1, .Part2, 281);
 }

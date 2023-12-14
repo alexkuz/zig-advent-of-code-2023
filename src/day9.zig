@@ -5,11 +5,9 @@ const Result = @import("utils.zig").Result;
 const Int = i32;
 const NumArray = std.ArrayList(Int);
 
-pub fn day9(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day9(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
+    _ = allocator;
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day9.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

@@ -35,11 +35,8 @@ const HashKey = packed struct{
 
 const SolvedHashMap = std.hash_map.HashMap(HashInt, VarInt, HashMapContext, std.hash_map.default_max_load_percentage);
 
-pub fn day12(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day12(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day12.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

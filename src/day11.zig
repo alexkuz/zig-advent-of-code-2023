@@ -17,11 +17,8 @@ const Pair = struct {
     b: Int
 };
 
-pub fn day11(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day11(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day11.txt", allocator);
-    defer reader.close();
 
     var galaxies = std.ArrayList(Position).init(allocator);
     defer galaxies.deinit();

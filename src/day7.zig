@@ -29,11 +29,8 @@ const HandType = enum(u3) {
     Five
 };
 
-pub fn day7(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day7(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day7.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

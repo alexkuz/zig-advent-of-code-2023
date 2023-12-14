@@ -73,11 +73,8 @@ fn movePosition(pos: usize, direction: Direction, table_size: usize) ?usize {
     }
 }
 
-pub fn day10(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day10(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day10.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
     var table: []Pipe = undefined;

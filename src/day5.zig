@@ -8,11 +8,8 @@ const SeedSlice = struct{
     used: bool
 };
 
-pub fn day5(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day5(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day5.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

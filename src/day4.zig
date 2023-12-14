@@ -2,11 +2,9 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-pub fn day4(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day4(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
+    _ = allocator;
     var result: Result = std.mem.zeroes(Result);
-
-    var reader = try LineReader.open("data/day4.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

@@ -9,7 +9,8 @@ const Cubes = struct {
 };
 const fields = std.meta.fields(Cubes);
 
-pub fn day2(allocator: std.mem.Allocator) anyerror!Result {
+pub fn day2(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
+    _ = allocator;
     var result: Result = std.mem.zeroes(Result);
 
     const total_cubes = Cubes{
@@ -17,9 +18,6 @@ pub fn day2(allocator: std.mem.Allocator) anyerror!Result {
         .green = 13,
         .blue = 14
     };
-
-    var reader = try LineReader.open("data/day2.txt", allocator);
-    defer reader.close();
 
     var n: u32 = 0;
 

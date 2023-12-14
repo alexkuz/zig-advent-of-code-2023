@@ -1,25 +1,31 @@
 const std = @import("std");
 const Result = @import("utils.zig").Result;
 const AppAllocator = @import("utils.zig").AppAllocator;
+const LineReader = @import("utils.zig").LineReader;
+const FileLineReader = @import("utils.zig").FileLineReader;
+
+const DayRun = struct{
+    run: fn(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result,
+    data: []const u8,
+};
 
 const day_runs = [_]DayRun{
-    @import("day1.zig").day1,
-    @import("day2.zig").day2,
-    @import("day3.zig").day3,
-    @import("day4.zig").day4,
-    @import("day5.zig").day5,
-    @import("day6.zig").day6,
-    @import("day7.zig").day7,
-    @import("day8.zig").day8,
-    @import("day9.zig").day9,
-    @import("day10.zig").day10,
-    @import("day11.zig").day11,
-    @import("day12.zig").day12,
+    .{ .run = @import("day1.zig").day1, .data = "data/day1.txt"},
+    .{ .run = @import("day2.zig").day2, .data = "data/day2.txt"},
+    .{ .run = @import("day3.zig").day3, .data = "data/day3.txt"},
+    .{ .run = @import("day4.zig").day4, .data = "data/day4.txt"},
+    .{ .run = @import("day5.zig").day5, .data = "data/day5.txt"},
+    .{ .run = @import("day6.zig").day6, .data = "data/day6.txt"},
+    .{ .run = @import("day7.zig").day7, .data = "data/day7.txt"},
+    .{ .run = @import("day8.zig").day8, .data = "data/day8.txt"},
+    .{ .run = @import("day9.zig").day9, .data = "data/day9.txt"},
+    .{ .run = @import("day10.zig").day10, .data = "data/day10.txt"},
+    .{ .run = @import("day11.zig").day11, .data = "data/day11.txt"},
+    .{ .run = @import("day12.zig").day12, .data = "data/day12.txt"},
+    .{ .run = @import("day13.zig").day13, .data = "data/day13.txt"},
 };
 
 const stdout_file = std.io.getStdOut().writer();
-
-const DayRun = fn(allocator: std.mem.Allocator) anyerror!Result;
 
 const ESC = "\x1b[";
 const WHITE = ESC ++ "1m";
@@ -37,9 +43,11 @@ const TITLE = RED_STAR ++ " " ++ (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 3 ++
     GREEN ++ "Advent of Code 2023" ++
     (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 3 ++ " " ++ RED_STAR;
 
-fn task(run: anytype, result: *Result, allocator: std.mem.Allocator) void {
+fn task(run: anytype, data: []const u8, result: *Result, allocator: std.mem.Allocator) void {
     var timer = std.time.Timer.start() catch unreachable;
-    const res = run(allocator) catch unreachable;
+    var reader = FileLineReader.open(data, allocator) catch unreachable;
+    defer reader.close();
+    const res = run(allocator, &reader) catch unreachable;
     result.* = res;
     result.time = timer.read();
 }
@@ -83,7 +91,7 @@ pub fn main() !void {
         res = try allocator.create(Result);
 
         results[i] = res;
-        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun, res, allocator});
+        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun.run, dayRun.data, res, allocator});
     }
 
     var totalTime: u64 = 0;
@@ -150,4 +158,8 @@ fn printNumber(num: i64, buf: []u8) ![]u8 {
     } else {
         return try std.fmt.bufPrint(buf, "{d:>14}", .{num});
     }
+}
+
+test {
+ @import("std").testing.refAllDecls(@This());
 }
