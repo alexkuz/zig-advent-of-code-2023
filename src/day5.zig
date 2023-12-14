@@ -2,11 +2,7 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-const SeedSlice = struct{
-    start: u64,
-    len: u64,
-    used: bool
-};
+const SeedSlice = struct { start: u64, len: u64, used: bool };
 
 pub fn day5(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -24,10 +20,10 @@ pub fn day5(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
     var it = std.mem.split(u8, first_line[7..], " ");
     var seed_no: usize = 0;
-    while(it.next()) |seed| {
+    while (it.next()) |seed| {
         seeds[seed_no] = try std.fmt.parseInt(u64, seed, 10);
         if (seed_no % 2 == 1) {
-            try seed_ranges.append(.{ .start = seeds[seed_no-1], .len = seeds[seed_no], .used = false });
+            try seed_ranges.append(.{ .start = seeds[seed_no - 1], .len = seeds[seed_no], .used = false });
         }
         seed_no += 1;
     }
@@ -64,28 +60,16 @@ pub fn day5(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
             }
             seed_range.used = true;
             if (seed_range.start < source_start) {
-                try seed_ranges.append(.{
-                    .start = seed_range.start,
-                    .len = source_start - seed_range.start,
-                    .used = false
-                });
+                try seed_ranges.append(.{ .start = seed_range.start, .len = source_start - seed_range.start, .used = false });
             }
             if (seed_range.start + seed_range.len > source_start + range_len) {
-                try seed_ranges.append(.{
-                    .start = source_start + range_len,
-                    .len = seed_range.start + seed_range.len - (source_start + range_len),
-                    .used = false
-                }); 
+                try seed_ranges.append(.{ .start = source_start + range_len, .len = seed_range.start + seed_range.len - (source_start + range_len), .used = false });
             }
 
-            const start = @max(seed_range.start,source_start);
-            const end = @min(seed_range.start + seed_range.len,source_start + range_len);
+            const start = @max(seed_range.start, source_start);
+            const end = @min(seed_range.start + seed_range.len, source_start + range_len);
 
-            seed_ranges.items[i] = .{
-                .start = start - source_start + dest_start,
-                .len = end - start,
-                .used = true
-            };
+            seed_ranges.items[i] = .{ .start = start - source_start + dest_start, .len = end - start, .used = true };
         }
     }
 

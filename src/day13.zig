@@ -13,7 +13,10 @@ pub fn day13(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
     defer cols.deinit();
     var row_no: u5 = 0;
 
-    while (try reader.next()) |line| : ({ n += 1; row_no += 1; }) {
+    while (try reader.next()) |line| : ({
+        n += 1;
+        row_no += 1;
+    }) {
         // std.debug.print("{d}: {s}\n", .{n,line});
         if (line.len == 0 and n > 0) {
             result.part1 += getResult(rows.items, cols.items, false);
@@ -33,8 +36,8 @@ pub fn day13(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
         var row: u20 = 0;
         for (line, 0..) |c, i| {
             if (c == '#') {
-                cols.items[i] |= @as(u20,1) << row_no;
-                row |= @as(u20,1) << @truncate(line.len - i - 1);
+                cols.items[i] |= @as(u20, 1) << row_no;
+                row |= @as(u20, 1) << @truncate(line.len - i - 1);
             }
         }
         try rows.append(row);
@@ -52,7 +55,7 @@ fn getResult(row_items: []u20, col_items: []u20, with_smudge: bool) u32 {
     var result: u32 = 0;
 
     const row_idx = findMirror(row_items, with_smudge);
-    result += 100 * @as(u32,row_idx);
+    result += 100 * @as(u32, row_idx);
     if (row_idx == 0) {
         const col_idx = findMirror(col_items, with_smudge);
         result += col_idx;
@@ -79,7 +82,7 @@ fn findMirror(items: []u20, with_smudge: bool) u8 {
         }
         if (equal) {
             const min: u8 = if (i < items.len - i) 0 else @truncate(i - (items.len - i));
-            for (min..i-1) |k1| {
+            for (min..i - 1) |k1| {
                 const k2 = i + (i - k1 - 1);
                 // std.debug.print("check {d} vs {d}\n", .{k1, k2});
                 if (items[k1] != items[k2]) {

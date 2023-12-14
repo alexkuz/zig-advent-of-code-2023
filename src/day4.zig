@@ -18,8 +18,8 @@ pub fn day4(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
             colon_idx = std.mem.indexOf(u8, line, ":").?;
             bar_idx = std.mem.indexOf(u8, line, "|").?;
         }
-        var win_numbers = line[colon_idx+1..bar_idx-1];
-        var card_numbers = line[bar_idx+1..];
+        var win_numbers = line[colon_idx + 1 .. bar_idx - 1];
+        var card_numbers = line[bar_idx + 1 ..];
 
         const win_len: u32 = @truncate(@divFloor(win_numbers.len, 3));
         const card_len: u32 = @truncate(@divFloor(card_numbers.len, 3));
@@ -30,14 +30,14 @@ pub fn day4(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
         for (0..card_len) |i| {
             for (0..win_len) |k| {
-                if (std.mem.eql(u8, win_numbers[3*k..3*k+3], card_numbers[3*i..3*i+3])) {
-                    points = @max(points*2, 1);
+                if (std.mem.eql(u8, win_numbers[3 * k .. 3 * k + 3], card_numbers[3 * i .. 3 * i + 3])) {
+                    points = @max(points * 2, 1);
                     count += 1;
                 }
             }
         }
 
-        for(0..count) |i| {
+        for (0..count) |i| {
             copies[n + i + 1] += (1 + copies[n]);
         }
 

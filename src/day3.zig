@@ -2,20 +2,9 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-const Number = struct {
-    num: u16,
-    line: usize,
-    pos: usize,
-    len: usize
-};
+const Number = struct { num: u16, line: usize, pos: usize, len: usize };
 
-const Symbol = struct {
-    left_part: u16,
-    right_part: u16,
-    count: u8,
-    gear: bool
-};
-
+const Symbol = struct { left_part: u16, right_part: u16, count: u8, gear: bool };
 
 const len = 140;
 
@@ -49,19 +38,19 @@ pub fn day3(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
                 num_len += 1;
             } else {
                 if (cur_number > 0) {
-                    try numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len, .line = n});
+                    try numbers.append(Number{ .num = cur_number, .pos = start_pos, .len = num_len, .line = n });
                     start_pos = 0;
                     cur_number = 0;
                     num_len = 0;
                 }
                 if (char != '.') {
-                    try symbols.append(Symbol{.count = 0, .left_part = 0, .right_part = 0, .gear = char == '*'});
+                    try symbols.append(Symbol{ .count = 0, .left_part = 0, .right_part = 0, .gear = char == '*' });
                     symbol_loc[n][pos] = symbols.items.len;
                 }
             }
         }
         if (cur_number > 0) {
-            try numbers.append(Number{.num = cur_number,.pos = start_pos, .len = num_len, .line = n});
+            try numbers.append(Number{ .num = cur_number, .pos = start_pos, .len = num_len, .line = n });
         }
     }
 
@@ -70,7 +59,7 @@ pub fn day3(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
         inline for (0..5) |p| {
             if (p > 0 or number.pos > 0) {
                 const pos = number.pos + p - 1;
-                if (pos < len and p < number.len + 2) { 
+                if (pos < len and p < number.len + 2) {
                     inline for (0..3) |l| {
                         if (l > 0 or number.line > 0) {
                             const ln = number.line + l - 1;
@@ -101,7 +90,7 @@ pub fn day3(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
     for (symbols.items) |symbol| {
         if (symbol.gear and symbol.count == 2) {
-            result.part2 += @as(u32,symbol.left_part) * @as(u32,symbol.right_part);
+            result.part2 += @as(u32, symbol.left_part) * @as(u32, symbol.right_part);
         }
     }
 

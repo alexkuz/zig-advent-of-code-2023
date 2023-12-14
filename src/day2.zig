@@ -2,22 +2,14 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-const Cubes = struct {
-    green: u32 = 1,
-    red: u32 = 1,
-    blue: u32 = 1
-};
+const Cubes = struct { green: u32 = 1, red: u32 = 1, blue: u32 = 1 };
 const fields = std.meta.fields(Cubes);
 
 pub fn day2(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     _ = allocator;
     var result: Result = std.mem.zeroes(Result);
 
-    const total_cubes = Cubes{
-        .red = 12,
-        .green = 13,
-        .blue = 14
-    };
+    const total_cubes = Cubes{ .red = 12, .green = 13, .blue = 14 };
 
     var n: u32 = 0;
 
@@ -34,10 +26,10 @@ pub fn day2(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
         while (it.next()) |turn| {
             var it1 = std.mem.split(u8, turn, ", ");
-            while(it1.next()) |keyval| {
+            while (it1.next()) |keyval| {
                 const space_idx = std.mem.indexOf(u8, keyval, " ").?;
                 const val = try std.fmt.parseInt(u32, keyval[0..space_idx], 10);
-                const color = keyval[(space_idx+1)..];
+                const color = keyval[(space_idx + 1)..];
 
                 inline for (fields) |field| {
                     if (std.mem.eql(u8, color, field.name)) {

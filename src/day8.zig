@@ -2,15 +2,15 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
-const Name = packed struct{
-    a:u5,
-    b:u5,
-    c:u5,
+const Name = packed struct {
+    a: u5,
+    b: u5,
+    c: u5,
     pub fn fromString(str: []const u8) Name {
         return .{
-            .a = @as(u5,@truncate(str[0]-'A')),
-            .b = @as(u5,@truncate(str[1]-'A')),
-            .c = @as(u5,@truncate(str[2]-'A')),
+            .a = @as(u5, @truncate(str[0] - 'A')),
+            .b = @as(u5, @truncate(str[1] - 'A')),
+            .c = @as(u5, @truncate(str[2] - 'A')),
         };
     }
     pub fn eql(self: *Name, n: Name) bool {
@@ -18,15 +18,9 @@ const Name = packed struct{
     }
 };
 
-const Route = packed struct {
-    left: Name,
-    right: Name
-};
+const Route = packed struct { left: Name, right: Name };
 
-const Node = packed struct {
-    name: Name,
-    cycle_count: u16
-};
+const Node = packed struct { name: Name, cycle_count: u16 };
 
 const len = 'Z' - 'A' + 1;
 const final = Name.fromString("ZZZ");
@@ -62,10 +56,7 @@ pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
             if (line[0] == 'A' and line[1] == 'A') {
                 aaaIdx = nodes.items.len;
             }
-            try nodes.append(.{
-                .name = Name.fromString(line[0..3]),
-                .cycle_count = 0
-            });
+            try nodes.append(.{ .name = Name.fromString(line[0..3]), .cycle_count = 0 });
         }
     }
 
@@ -75,7 +66,7 @@ pub fn day8(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
     var final_count: u8 = 0;
 
-    while(step < 10E5) : (step += 1) {
+    while (step < 10E5) : (step += 1) {
         const dir = directions[step % directions.len];
 
         for (nodes.items, 0..) |*node, i| {

@@ -20,18 +20,7 @@ const HashMapContext = struct {
     }
 };
 
-const HashKey = packed struct{
-    mask_all: u20,
-    mask_none: u20,
-    len: u8,
-    count1: CountInt,
-    count2: CountInt,
-    count3: CountInt,
-    count4: CountInt,
-    count5: CountInt,
-    count6: CountInt,
-    shift: u5
-};
+const HashKey = packed struct { mask_all: u20, mask_none: u20, len: u8, count1: CountInt, count2: CountInt, count3: CountInt, count4: CountInt, count5: CountInt, count6: CountInt, shift: u5 };
 
 const SolvedHashMap = std.hash_map.HashMap(HashInt, VarInt, HashMapContext, std.hash_map.default_max_load_percentage);
 
@@ -58,7 +47,7 @@ pub fn day12(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
         const template_str = it.next().?;
         const counts_str = it.next().?;
         var count_it = std.mem.tokenizeScalar(u8, counts_str, ',');
-        
+
         for (template_str) |c| {
             mask_all <<= 1;
             mask_none <<= 1;
@@ -73,7 +62,7 @@ pub fn day12(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
         var count_sum: u8 = 0;
         var count_idx: usize = 0;
-        while(count_it.next()) |count_str|: (count_idx += 1) {
+        while (count_it.next()) |count_str| : (count_idx += 1) {
             const count = try std.fmt.parseInt(CountInt, count_str, 10);
             count_list[count_idx] = count;
             count_sum += count;
@@ -89,12 +78,12 @@ pub fn day12(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
             for (0..count_idx) |k| {
                 count_list2[i * count_idx + k] = count_list[k];
             }
-            mask_all2 |= @as(MaskInt,mask_all) << @truncate(i * template_str.len + i);
+            mask_all2 |= @as(MaskInt, mask_all) << @truncate(i * template_str.len + i);
             if (i > 0) {
                 // '?' between copies
-                mask_all2 |= @as(MaskInt,1) << @truncate(i * template_str.len + i - 1);
+                mask_all2 |= @as(MaskInt, 1) << @truncate(i * template_str.len + i - 1);
             }
-            mask_none2 |= @as(MaskInt,mask_none) << @truncate(i * template_str.len + i);
+            mask_none2 |= @as(MaskInt, mask_none) << @truncate(i * template_str.len + i);
         }
 
         const count_slice2 = count_list2[0..(count_idx * 5)];
@@ -115,33 +104,22 @@ fn getVariants(solved: *SolvedHashMap, mask_all: MaskInt, mask_none: MaskInt, le
     var variants: VarInt = 0;
 
     if (counts.len == 0) {
-        return if ((mask_none & ((@as(MaskInt,1) << @truncate(len)) - 1)) > 0) 0 else 1; 
+        return if ((mask_none & ((@as(MaskInt, 1) << @truncate(len)) - 1)) > 0) 0 else 1;
     }
 
     const mask_all_base: MaskInt = mask_all & ((1 << 20) - 1);
     const mask_none_base: MaskInt = mask_none & ((1 << 20) - 1);
 
-    const hash_key = HashFn.hash(0, std.mem.asBytes(&HashKey{
-        .mask_all = @truncate(mask_all_base),
-        .mask_none = @truncate(mask_none_base),
-        .len = len,
-        .count1 = if (counts.len > 0) counts[0] else 0,
-        .count2 = if (counts.len > 1) counts[1] else 0,
-        .count3 = if (counts.len > 2) counts[2] else 0,
-        .count4 = if (counts.len > 3) counts[3] else 0,
-        .count5 = if (counts.len > 4) counts[4] else 0,
-        .count6 = if (counts.len > 5) counts[5] else 0,
-        .shift = shift
-    }));
+    const hash_key = HashFn.hash(0, std.mem.asBytes(&HashKey{ .mask_all = @truncate(mask_all_base), .mask_none = @truncate(mask_none_base), .len = len, .count1 = if (counts.len > 0) counts[0] else 0, .count2 = if (counts.len > 1) counts[1] else 0, .count3 = if (counts.len > 2) counts[2] else 0, .count4 = if (counts.len > 3) counts[3] else 0, .count5 = if (counts.len > 4) counts[4] else 0, .count6 = if (counts.len > 5) counts[5] else 0, .shift = shift }));
 
     const max_pos: u8 = @truncate(len - (sum + counts.len - 1) + 1);
-     if (shift > CACHED_SHIFT) {
+    if (shift > CACHED_SHIFT) {
         if (solved.get(hash_key)) |value| {
             return value;
         }
     }
 
-   const count: CountInt = counts[0];
+    const count: CountInt = counts[0];
     // ???.###
     // mask_all  = 1110111
     // mask_none = 0000111
@@ -151,21 +129,21 @@ fn getVariants(solved: *SolvedHashMap, mask_all: MaskInt, mask_none: MaskInt, le
     for (0..max_pos) |pos| {
         if (pos > 0) {
             // 1000000000 & mask_none == 0
-            const empty_previous = ((@as(MaskInt,1) << @truncate(pos)) - 1) << @truncate(len - pos);
+            const empty_previous = ((@as(MaskInt, 1) << @truncate(pos)) - 1) << @truncate(len - pos);
             if (empty_previous & mask_none != 0) {
                 continue;
-            }            
+            }
         }
 
         const right_pad: u8 = @truncate(len - count - pos);
         // 1110000000 & mask_all == 1110000000
-        const group: MaskInt = ((@as(MaskInt,1) << count) - 1) << @truncate(right_pad);
+        const group: MaskInt = ((@as(MaskInt, 1) << count) - 1) << @truncate(right_pad);
         if ((group & mask_all) != group) {
             continue;
         }
         if (right_pad > 0) {
             // 0001000000 & mask_none == 0
-            const empty_next = @as(MaskInt,1) << @truncate(right_pad - 1);
+            const empty_next = @as(MaskInt, 1) << @truncate(right_pad - 1);
             if (empty_next & mask_none != 0) {
                 continue;
             }

@@ -12,19 +12,19 @@ const Pipe = enum(u3) {
     eastSouth,
 
     pub fn fromChar(char: u8) Pipe {
-        return switch(char) {
+        return switch (char) {
             '-' => .westEast,
             '|' => .northSouth,
             'J' => .westNorth,
             '7' => .westSouth,
             'L' => .eastNorth,
             'F' => .eastSouth,
-            else => .ground
-        };        
+            else => .ground,
+        };
     }
 
     pub fn from(self: Pipe, direction: Direction) bool {
-        return switch(direction) {
+        return switch (direction) {
             .north => self == .northSouth or self == .eastSouth or self == .westSouth,
             .west => self == .westEast or self == .eastSouth or self == .eastNorth,
             .south => self == .northSouth or self == .eastNorth or self == .westNorth,
@@ -32,35 +32,22 @@ const Pipe = enum(u3) {
         };
     }
 
-    const all_moves = [_]Direction{
-        .west, .east,
-        .north, .south,
-        .west, .north,
-        .west, .south,
-        .east, .north,
-        .east, .south,
-        .east, .south, .north, .west
-    };
+    const all_moves = [_]Direction{ .west, .east, .north, .south, .west, .north, .west, .south, .east, .north, .east, .south, .east, .south, .north, .west };
 
     pub fn moves(self: Pipe) []const Direction {
-        return switch(self) {
+        return switch (self) {
             .westEast => all_moves[0..2],
             .northSouth => all_moves[2..4],
             .westNorth => all_moves[4..6],
             .westSouth => all_moves[6..8],
             .eastNorth => all_moves[8..10],
             .eastSouth => all_moves[10..12],
-            else => all_moves[12..16]
+            else => all_moves[12..16],
         };
     }
 };
 
-const Direction = enum(u2) {
-    north,
-    west,
-    east,
-    south
-};
+const Direction = enum(u2) { north, west, east, south };
 
 const directions = std.meta.fields(Direction);
 
@@ -135,11 +122,11 @@ pub fn day10(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
     var inside = false;
     var inside_count: u32 = 0;
 
-    for (0..table_size*table_size) |i| {
+    for (0..table_size * table_size) |i| {
         if (main_loop[i]) {
             switch (table[i]) {
                 .northSouth, .westNorth, .eastNorth => inside = !inside,
-                else => {}
+                else => {},
             }
         } else {
             if (inside) {

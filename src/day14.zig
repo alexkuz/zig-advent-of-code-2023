@@ -4,10 +4,7 @@ const Result = @import("utils.zig").Result;
 
 const HashFn = std.hash.XxHash3;
 
-const Position = struct{
-    col: u8,
-    row: u8
-};
+const Position = struct { col: u8, row: u8 };
 
 const MAX_LOOP: u64 = 1E9;
 
@@ -48,11 +45,11 @@ pub fn day14(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
         len = @truncate(line.len);
         for (line, 0..) |c, i| {
             if (c == '#') {
-                cube_table[n] |= @as(u100,1) << @truncate(len - i - 1);
-                trans_cube_table[i] |= @as(u100,1) << @truncate(len - n - 1);
+                cube_table[n] |= @as(u100, 1) << @truncate(len - i - 1);
+                trans_cube_table[i] |= @as(u100, 1) << @truncate(len - n - 1);
             }
             if (c == 'O') {
-                rock_table[n] |= @as(u100,1) << @truncate(len - i - 1);
+                rock_table[n] |= @as(u100, 1) << @truncate(len - i - 1);
             }
         }
     }
@@ -61,7 +58,7 @@ pub fn day14(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
     var loop_idx: u64 = 0;
 
-    while(loop_idx < MAX_LOOP) : (loop_idx += 1) {
+    while (loop_idx < MAX_LOOP) : (loop_idx += 1) {
         moveTop(rock_table, &trans_rock_table, cube_table, len);
 
         if (loop_idx == 0) {
@@ -78,7 +75,7 @@ pub fn day14(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
             if (solved.get(rock_table)) |found| {
                 cycle_found = true;
                 const cycle_size = loop_idx - found;
-                const skip_loops: u32 = @intFromFloat(@floor(@as(f64,@floatFromInt(MAX_LOOP - loop_idx)) / @as(f64, @floatFromInt(cycle_size))));
+                const skip_loops: u32 = @intFromFloat(@floor(@as(f64, @floatFromInt(MAX_LOOP - loop_idx)) / @as(f64, @floatFromInt(cycle_size))));
                 loop_idx += skip_loops * cycle_size;
                 result.part2 = weights.items[MAX_LOOP - loop_idx + found - 1];
                 break;
@@ -96,7 +93,7 @@ fn getWeight(rock_table: [100]u100, size: u32) u32 {
     var result: u32 = 0;
     for (0..size) |i| {
         const row = rock_table[i];
-        result += @popCount(row) * @as(u32,@truncate(size - i));
+        result += @popCount(row) * @as(u32, @truncate(size - i));
     }
     return result;
 }
@@ -106,7 +103,7 @@ fn getTransWeight(rock_table: [100]u100, size: u32) u32 {
     for (0..size) |i| {
         const row = rock_table[i];
         for (0..size) |k| {
-            const bit = @as(u100,1) << @truncate(size - k - 1);
+            const bit = @as(u100, 1) << @truncate(size - k - 1);
             if (row & bit != 0) {
                 result += @truncate(size - k);
             }
@@ -119,10 +116,10 @@ fn moveTop(src: [100]u100, dest: *[100]u100, cube_table: [100]u100, size: u8) vo
     for (0..size) |col| {
         var dest_col: u100 = 0;
         var pos: u8 = 0;
-        const bit: u100 = @as(u100,1) << @truncate(size - col - 1);
+        const bit: u100 = @as(u100, 1) << @truncate(size - col - 1);
         for (0..size) |row| {
             if (src[row] & bit != 0) {
-                dest_col |= @as(u100,1) << @truncate(size - pos - 1);
+                dest_col |= @as(u100, 1) << @truncate(size - pos - 1);
                 pos += 1;
             } else if (cube_table[row] & bit != 0) {
                 pos = @truncate(row + 1);
@@ -136,12 +133,12 @@ fn moveBottom(src: [100]u100, dest: *[100]u100, cube_table: [100]u100, size: u8)
     for (0..size) |col| {
         var dest_col: u100 = 0;
         var pos: u8 = size - 1;
-        const bit: u100 = @as(u100,1) << @truncate(size - col - 1);
+        const bit: u100 = @as(u100, 1) << @truncate(size - col - 1);
         for (0..size) |i| {
             const row = size - i - 1;
 
             if (src[row] & bit != 0) {
-                dest_col |= @as(u100,1) << @truncate(size - pos - 1);
+                dest_col |= @as(u100, 1) << @truncate(size - pos - 1);
                 if (pos > 0) pos -= 1;
             } else if (cube_table[row] & bit != 0 and row > 0) {
                 pos = @truncate(row - 1);
@@ -154,7 +151,7 @@ fn moveBottom(src: [100]u100, dest: *[100]u100, cube_table: [100]u100, size: u8)
 fn printMap(rock_table: [100]u100, cube_table: [100]u100, size: u8) void {
     for (0..size) |row| {
         for (0..size) |col| {
-            const bit: u100 = @as(u100,1) << @truncate(size - col - 1);
+            const bit: u100 = @as(u100, 1) << @truncate(size - col - 1);
             if (rock_table[row] & bit != 0) {
                 std.debug.print("O", .{});
             } else if (cube_table[row] & bit != 0) {
@@ -170,7 +167,7 @@ fn printMap(rock_table: [100]u100, cube_table: [100]u100, size: u8) void {
 
 fn printTransMap(rock_table: [100]u100, cube_table: [100]u100, size: u8) void {
     for (0..size) |row| {
-        const bit: u100 = @as(u100,1) << @truncate(size - row - 1);
+        const bit: u100 = @as(u100, 1) << @truncate(size - row - 1);
         for (0..size) |col| {
             if (rock_table[col] & bit != 0) {
                 std.debug.print("O", .{});

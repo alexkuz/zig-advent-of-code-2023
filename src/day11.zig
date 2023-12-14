@@ -7,15 +7,9 @@ const Int = u32;
 const SHIFT1: u4 = 1;
 const SHIFT2: Int = 1E6 - 1;
 
-const Position = struct {
-    x: Int,
-    y: Int
-};
+const Position = struct { x: Int, y: Int };
 
-const Pair = struct {
-    a: Int,
-    b: Int
-};
+const Pair = struct { a: Int, b: Int };
 
 pub fn day11(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -107,8 +101,8 @@ pub fn day11(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
         galaxy2.y += shift_rows2[galaxy2.y];
     }
 
-    for(galaxies.items, 0..) |a, i| {
-        for(0..i) |k| {
+    for (galaxies.items, 0..) |a, i| {
+        for (0..i) |k| {
             const b = galaxies.items[k];
             result.part1 += @max(a.x, b.x) - @min(a.x, b.x) + @max(a.y, b.y) - @min(a.y, b.y);
 

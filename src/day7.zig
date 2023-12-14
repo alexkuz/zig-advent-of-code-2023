@@ -3,14 +3,11 @@ const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
 const cardNames = "23456789TJQKA";
-const jokerIdx: u4 = @as(u4,std.mem.indexOfScalar(u8,cardNames,'J').?);
+const jokerIdx: u4 = @as(u4, std.mem.indexOfScalar(u8, cardNames, 'J').?);
 
 const cardMap = createCardMap(cardNames);
 
-const Card = struct {
-    cardIdx: u4,
-    count: u8
-};
+const Card = struct { cardIdx: u4, count: u8 };
 
 const HandBid = struct {
     type1: u3,
@@ -19,15 +16,7 @@ const HandBid = struct {
     bid: u10,
 };
 
-const HandType = enum(u3) {
-    None,
-    Pair,
-    TwoPairs,
-    Three,
-    FullHouse,
-    Four,
-    Five
-};
+const HandType = enum(u3) { None, Pair, TwoPairs, Three, FullHouse, Four, Five };
 
 pub fn day7(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -45,7 +34,7 @@ pub fn day7(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 
         var jokerCount: u4 = 0;
 
-        var indexedHand:[5]u4 = undefined;
+        var indexedHand: [5]u4 = undefined;
 
         for (hand, 0..) |card, i| {
             const cardIdx = cardMap[card];
@@ -101,25 +90,25 @@ pub fn day7(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
 }
 
 fn getHandType(group1: usize, group2: usize) HandType {
-    return switch(group1) {
+    return switch (group1) {
         5 => .Five,
         4 => .Four,
-        3 => switch(group2) {
+        3 => switch (group2) {
             2 => .FullHouse,
-            else => .Three
+            else => .Three,
         },
         2 => switch (group2) {
             2 => .TwoPairs,
             else => .Pair,
         },
-        else => .None
+        else => .None,
     };
 }
 
 fn createCardMap(names: []const u8) []const u4 {
     var map: ['T' + 1]u4 = undefined;
     for (names, 0..) |card, i| {
-        map[card] = @as(u4,i);
+        map[card] = @as(u4, i);
     }
     return map[0..];
 }

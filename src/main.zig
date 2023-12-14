@@ -4,26 +4,26 @@ const AppAllocator = @import("utils.zig").AppAllocator;
 const LineReader = @import("utils.zig").LineReader;
 const FileLineReader = @import("utils.zig").FileLineReader;
 
-const DayRun = struct{
-    run: fn(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result,
+const DayRun = struct {
+    run: fn (allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result,
     data: []const u8,
 };
 
 const day_runs = [_]DayRun{
-    .{ .run = @import("day1.zig").day1, .data = "data/day1.txt"},
-    .{ .run = @import("day2.zig").day2, .data = "data/day2.txt"},
-    .{ .run = @import("day3.zig").day3, .data = "data/day3.txt"},
-    .{ .run = @import("day4.zig").day4, .data = "data/day4.txt"},
-    .{ .run = @import("day5.zig").day5, .data = "data/day5.txt"},
-    .{ .run = @import("day6.zig").day6, .data = "data/day6.txt"},
-    .{ .run = @import("day7.zig").day7, .data = "data/day7.txt"},
-    .{ .run = @import("day8.zig").day8, .data = "data/day8.txt"},
-    .{ .run = @import("day9.zig").day9, .data = "data/day9.txt"},
-    .{ .run = @import("day10.zig").day10, .data = "data/day10.txt"},
-    .{ .run = @import("day11.zig").day11, .data = "data/day11.txt"},
-    .{ .run = @import("day12.zig").day12, .data = "data/day12.txt"},
-    .{ .run = @import("day13.zig").day13, .data = "data/day13.txt"},
-    .{ .run = @import("day14.zig").day14, .data = "data/day14.txt"},
+    .{ .run = @import("day1.zig").day1, .data = "data/day1.txt" },
+    .{ .run = @import("day2.zig").day2, .data = "data/day2.txt" },
+    .{ .run = @import("day3.zig").day3, .data = "data/day3.txt" },
+    .{ .run = @import("day4.zig").day4, .data = "data/day4.txt" },
+    .{ .run = @import("day5.zig").day5, .data = "data/day5.txt" },
+    .{ .run = @import("day6.zig").day6, .data = "data/day6.txt" },
+    .{ .run = @import("day7.zig").day7, .data = "data/day7.txt" },
+    .{ .run = @import("day8.zig").day8, .data = "data/day8.txt" },
+    .{ .run = @import("day9.zig").day9, .data = "data/day9.txt" },
+    .{ .run = @import("day10.zig").day10, .data = "data/day10.txt" },
+    .{ .run = @import("day11.zig").day11, .data = "data/day11.txt" },
+    .{ .run = @import("day12.zig").day12, .data = "data/day12.txt" },
+    .{ .run = @import("day13.zig").day13, .data = "data/day13.txt" },
+    .{ .run = @import("day14.zig").day14, .data = "data/day14.txt" },
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -75,7 +75,7 @@ pub fn main() !void {
         try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
         try stdout.print("│  {s}  │\n", .{TITLE});
         try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
-        try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{CYAN,RESET,CYAN,RESET});
+        try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{ CYAN, RESET, CYAN, RESET });
         try stdout.print("├────────┼────────────────┼────────────────┼────────┤\n", .{});
     }
 
@@ -92,7 +92,7 @@ pub fn main() !void {
         res = try allocator.create(Result);
 
         results[i] = res;
-        threads[i] = try std.Thread.spawn(.{}, task, .{dayRun.run, dayRun.data, res, allocator});
+        threads[i] = try std.Thread.spawn(.{}, task, .{ dayRun.run, dayRun.data, res, allocator });
     }
 
     var totalTime: u64 = 0;
@@ -117,7 +117,7 @@ pub fn main() !void {
 
             try stdout.print("│ {s}Day {d:<2}{s} │ {s} │ {s} │ {s}{s}{s} │\n", .{
                 YELLOW,
-                i+1,
+                i + 1,
                 RESET,
                 part1,
                 part2,
@@ -133,19 +133,8 @@ pub fn main() !void {
 
         const elapsed = timer.read();
         var buf: [100]u8 = undefined;
-        const timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{
-            WHITE,
-            @as(f64, @floatFromInt(elapsed)) / 10E3,
-            RESET,
-            WHITE,
-            @as(f64, @floatFromInt(totalTime)) / 10E3,
-            RESET
-        });
-        try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{
-            YELLOW,
-            RESET,
-            timeStr
-        });
+        const timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{ WHITE, @as(f64, @floatFromInt(elapsed)) / 10E3, RESET, WHITE, @as(f64, @floatFromInt(totalTime)) / 10E3, RESET });
+        try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{ YELLOW, RESET, timeStr });
 
         try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
     }
@@ -155,12 +144,12 @@ pub fn main() !void {
 
 fn printNumber(num: i64, buf: []u8) ![]u8 {
     if (num >= 0) {
-        return try std.fmt.bufPrint(buf, "{d:>14}", .{@as(u64,@intCast(num))});
+        return try std.fmt.bufPrint(buf, "{d:>14}", .{@as(u64, @intCast(num))});
     } else {
         return try std.fmt.bufPrint(buf, "{d:>14}", .{num});
     }
 }
 
 test {
- @import("std").testing.refAllDecls(@This());
+    @import("std").testing.refAllDecls(@This());
 }
