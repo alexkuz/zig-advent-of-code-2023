@@ -1,7 +1,6 @@
 const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
-const testResult = @import("utils.zig").testResult;
 
 pub fn dayNN(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result {
     var result: Result = std.mem.zeroes(Result);
@@ -14,6 +13,8 @@ pub fn dayNN(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
     return result;
 }
+
+const testResult = @import("utils.zig").testResult;
 
 test "dayNN" {
     try testResult("test-data/dayNN.txt", dayNN, .Part1, 0);
