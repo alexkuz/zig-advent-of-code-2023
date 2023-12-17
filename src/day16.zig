@@ -51,7 +51,9 @@ const HashMapKey = struct {
     y: u8,
 };
 
-const EnergizedMap = std.AutoHashMap(HashMapKey, *Energized);
+const MapValue = struct{ table: *Energized, complete: bool, cycled: bool };
+
+const EnergizedMap = std.AutoHashMap(HashMapKey, *MapValue);
 
 const Direction = enum(u2) {
     right,
@@ -111,7 +113,7 @@ pub fn day16(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
     defer arena.deinit();
     const arena_allocator = arena.allocator();
 
-    for (0..size) |y| {
+    for (0..2) |y| {
         if (try createBeams(arena_allocator, &energized_map, mirrors, 0, @truncate(y), .right, size, true)) |energized| {
             if (y == 0) {
                 result.part1 = getEnergized(energized.*, size);
@@ -125,10 +127,8 @@ pub fn day16(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
     }
 
     for (0..size) |x| {
-        // std.debug.print("TEST\n",.{});
         if (try createBeams(arena_allocator, &energized_map, mirrors, @truncate(x), 0, .bottom, size, true)) |energized| {
             result.part2 = @max(result.part2, getEnergized(energized.*, size));
-            // printEnergized(energized.*);
         }
 
         if (try createBeams(arena_allocator, &energized_map, mirrors, @truncate(x), @truncate(size - 1), .top, size, true)) |energized| {
@@ -139,10 +139,10 @@ pub fn day16(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
     return result;
 }
 
-fn printEnergized(energized: Energized) void {
-    std.debug.print("-------\n", .{});
-    for (0..2) |y| {
-        for (0..110) |x| {
+fn printEnergized(energized: Energized, size: u8) void {
+    std.debug.print("\n", .{});
+    for (0..size) |y| {
+        for (0..size) |x| {
             const bit = @as(u110, 1) << @truncate(x);
             if (bit & energized[y] != 0) {
                 std.debug.print("#", .{});
@@ -151,9 +151,8 @@ fn printEnergized(energized: Energized) void {
             }
         }
         std.debug.print("\n", .{});
-        //std.debug.print("{b:>110}\n",.{energized[x]});
     }
-    std.debug.print("-------\n", .{});
+    std.debug.print("\n", .{});
 }
 
 fn energizeTile(energized: *Energized, x: u8, y: u8) void {
@@ -162,12 +161,9 @@ fn energizeTile(energized: *Energized, x: u8, y: u8) void {
 
 fn getEnergized(energized: Energized, size: u8) u32 {
     var count: u32 = 0;
-    // std.debug.print("-------\n",.{});
     for (0..size) |x| {
-        // std.debug.print("{b}\n",.{energized[x]});
         count += @popCount(energized[x]);
     }
-    // std.debug.print("-------\n",.{});
     return count;
 }
 
@@ -207,11 +203,29 @@ fn createBeams(allocator: std.mem.Allocator, energized_map: *EnergizedMap, mirro
     return null;
 }
 
-fn shootBeam(allocator: std.mem.Allocator, energized_map: *EnergizedMap, mirrors: Mirrors, start_x: u8, start_y: u8, direction: Direction, size: u8) anyerror!*Energized {
+fn shootBeam(
+    allocator: std.mem.Allocator,
+    energized_map: *EnergizedMap,
+    mirrors: Mirrors,
+    start_x: u8,
+    start_y: u8,
+    direction: Direction,
+    size: u8
+) anyerror!*Energized {
     const hash_key = HashMapKey{ .direction = direction, .x = start_x, .y = start_y };
+    var mapValue: *MapValue = undefined;
+
     if (energized_map.get(hash_key)) |e| {
-        // std.debug.print("CACHED: {d}, {d} ({any})\n", .{start_x, start_y, direction});
-        return e;
+        mapValue = e;
+        if (e.complete or e.cycled) {
+            // std.debug.print("RETURN\n", .{});
+            return e.table;
+        }
+        e.cycled = true;
+    } else {
+        mapValue = try allocator.create(MapValue);
+        mapValue.complete = false;
+        mapValue.cycled = false;
     }
 
     const energized = try allocator.create(Energized);
@@ -223,39 +237,23 @@ fn shootBeam(allocator: std.mem.Allocator, energized_map: *EnergizedMap, mirrors
     var y = start_y;
     energizeTile(energized, x, y);
 
-    // std.debug.print("PUT: {d}, {d} ({any})\n", .{start_x, start_y, direction});
+    mapValue.table = energized;
 
-    // if (print) {
-    //     std.debug.print("PUT {any}: {d}, {d}\n", .{direction, start_x, start_y});
-    //     printEnergized(energized.*);
-    // }
-
-    try energized_map.put(hash_key, energized);
+    if (!mapValue.cycled) {
+        try energized_map.put(hash_key, mapValue);
+    }
 
     while (direction.move(&x, &y, size)) {
-        // if (print) {
-        //     std.debug.print("{d}, {d}\n", .{x, y});
-        // }
         energizeTile(energized, x, y);
-        // if (print) {
-        //     printEnergized(energized.*);
-        // }
 
         if (try createBeams(allocator, energized_map, mirrors, x, y, direction, size, false)) |e| {
-            // if (print) {
-            //     std.debug.print("{d}, {d}\n", .{x, y});
-            //     printEnergized(e.*);
-            // }
-            // std.debug.print("{d}, {d} => {d}, {d} ({any})\n", .{start_x, start_y, x, y, direction});
             mergeEnergized(energized, e, size);
             break;
         }
     }
 
-    // if (print) {
-    // std.debug.print("{any}: {d}, {d}\n", .{direction, start_x, start_y});
-    // printEnergized(energized.*);
-    // }
+    mapValue.complete = true;
+    mapValue.table = energized;
 
     return energized;
 }
