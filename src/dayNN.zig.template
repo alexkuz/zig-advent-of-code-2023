@@ -16,7 +16,10 @@ pub fn dayNN(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
 const testResult = @import("utils.zig").testResult;
 
-test "dayNN" {
+test "dayNN - Part 1" {
     try testResult("test-data/dayNN.txt", dayNN, .Part1, 0);
+}
+
+test "dayNN - Part 2" {
     try testResult("test-data/dayNN.txt", dayNN, .Part2, 0);
 }
