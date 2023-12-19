@@ -51,7 +51,7 @@ const HashMapKey = struct {
     y: u8,
 };
 
-const MapValue = struct{ table: *Energized, complete: bool, cycled: bool };
+const MapValue = struct { table: *Energized, complete: bool, cycled: bool };
 
 const EnergizedMap = std.AutoHashMap(HashMapKey, *MapValue);
 
@@ -203,15 +203,7 @@ fn createBeams(allocator: std.mem.Allocator, energized_map: *EnergizedMap, mirro
     return null;
 }
 
-fn shootBeam(
-    allocator: std.mem.Allocator,
-    energized_map: *EnergizedMap,
-    mirrors: Mirrors,
-    start_x: u8,
-    start_y: u8,
-    direction: Direction,
-    size: u8
-) anyerror!*Energized {
+fn shootBeam(allocator: std.mem.Allocator, energized_map: *EnergizedMap, mirrors: Mirrors, start_x: u8, start_y: u8, direction: Direction, size: u8) anyerror!*Energized {
     const hash_key = HashMapKey{ .direction = direction, .x = start_x, .y = start_y };
     var mapValue: *MapValue = undefined;
 

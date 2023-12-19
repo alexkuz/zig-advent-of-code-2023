@@ -2,13 +2,15 @@ const std = @import("std");
 const LineReader = @import("utils.zig").LineReader;
 const Result = @import("utils.zig").Result;
 
+const SIZE = 150;
+
 const NodeIterator = struct {
     current: ?Direction,
     node: *const Node,
 
     fn nextDir(dir: ?Direction) ?Direction {
         if (dir) |d| {
-            return switch(d) {
+            return switch (d) {
                 .top => null,
                 else => @enumFromInt(@intFromEnum(d) + 1),
             };
@@ -26,7 +28,7 @@ const NodeIterator = struct {
         };
     }
 
-    pub fn next(self: *NodeIterator, size: u8) ?Direction {
+    pub fn next(self: *NodeIterator, size: u16) ?Direction {
         var dir = nextDir(self.current);
         const prev = self.node.prev;
         const pos = self.node.pos;
@@ -67,10 +69,10 @@ const Direction = enum(u2) {
 
     pub fn getPosition(self: Direction, x: u8, y: u8) Position {
         return switch (self) {
-            .right => .{.x = x + 1, .y = y },
-            .left => .{.x = x - 1, .y = y },
-            .bottom => .{.x = x, .y = y + 1 },
-            .top => .{.x = x, .y = y - 1 },
+            .right => .{ .x = x + 1, .y = y },
+            .left => .{ .x = x - 1, .y = y },
+            .bottom => .{ .x = x, .y = y + 1 },
+            .top => .{ .x = x, .y = y - 1 },
         };
     }
 };
@@ -83,7 +85,7 @@ const Node = struct {
     visited: u12,
 
     pub fn iterator(self: *Node) NodeIterator {
-        return NodeIterator {
+        return NodeIterator{
             .current = null,
             .node = self,
         };
@@ -95,15 +97,15 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
     var n: u32 = 0;
 
-    var weights: [110][110]u4 = undefined;
-    var nodes: [110][110]Node = undefined;
-    var init: [110][110]bool = std.mem.zeroes([110][110]bool);
-    var in_queue: [110][110]bool = std.mem.zeroes([110][110]bool);
+    var weights: [SIZE][SIZE]u4 = undefined;
+    var nodes: [SIZE][SIZE]Node = undefined;
+    var init: [SIZE][SIZE]bool = std.mem.zeroes([SIZE][SIZE]bool);
+    var in_queue: [SIZE][SIZE]bool = std.mem.zeroes([SIZE][SIZE]bool);
 
     var queue = std.ArrayList(*Node).init(allocator);
     defer queue.deinit();
 
-    var size: u8 = 0;
+    var size: u16 = 0;
 
     while (try reader.next()) |line| : (n += 1) {
         if (size == 0) size = @truncate(line.len);
@@ -125,7 +127,7 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 
     var maybe_node: ?*Node = &nodes[0][0];
 
-    while(maybe_node) |node| {
+    while (maybe_node) |node| {
         const x = node.pos.x;
         const y = node.pos.y;
         // std.debug.print("GET ITERATOR FOR: {d},{d}\n", .{node.pos.x, node.pos.y});
@@ -145,11 +147,7 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
                 init[pos.y][pos.x] = true;
                 nodes[pos.y][pos.x] = .{
                     .pos = pos,
-                    .prev = .{
-                        .dir = dir,
-                        .count = count,
-                        .debug_node = node
-                    },
+                    .prev = .{ .dir = dir, .count = count, .debug_node = node },
                     .min_weight = weight,
                     .min_dist_weight = dist_weight,
                     .visited = 0,
@@ -170,7 +168,7 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
                     };
                     if (!in_queue[pos.y][pos.x]) {
                         try queue.append(&(nodes[pos.y][pos.x]));
-                        in_queue[pos.y][pos.x] = true;                    
+                        in_queue[pos.y][pos.x] = true;
                     }
                 }
                 std.sort.pdq(*Node, queue.items, {}, compareNodes);
@@ -193,7 +191,7 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
         // std.debug.print("queue: {d}\n", .{queue.items.len});
     }
 
-    printPath(&nodes[size - 1][size - 1], weights, size);
+    // printPath(&nodes[size - 1][size - 1], weights, size);
 
     result.part1 = nodes[size - 1][size - 1].min_weight;
 
@@ -201,24 +199,24 @@ pub fn day17(allocator: std.mem.Allocator, reader: *LineReader) anyerror!Result 
 }
 
 fn isVisited(visited: u12, dir: Direction, count: u2) bool {
-    const bit = @as(u12,1) << ((count - 1) * @as(u4,4) + @intFromEnum(dir));
+    const bit = @as(u12, 1) << ((count - 1) * @as(u4, 4) + @intFromEnum(dir));
     return visited & bit != 0;
 }
 
 fn setVisited(visited: *u12, dir: Direction, count: u2) void {
-    const bit = @as(u12,1) << ((count - 1) * @as(u4,4) + @intFromEnum(dir));
+    const bit = @as(u12, 1) << ((count - 1) * @as(u4, 4) + @intFromEnum(dir));
     visited.* |= bit;
 }
 
-fn printPath(node: *Node, weights: [110][110]u4, size: u8) void {
-     std.debug.print("\n", .{});
+fn printPath(node: *Node, weights: [SIZE][SIZE]u4, size: u16) void {
+    std.debug.print("\n", .{});
     var current = node;
-    var table: [110][110]u8 = undefined;
+    var table: [SIZE][SIZE]u8 = undefined;
     for (0..size) |i| {
-        @memcpy(&table[i], "." ** 110);
+        @memcpy(&table[i], "." ** SIZE);
     }
 
-    while(current.prev.debug_node) |prev_node| {
+    while (current.prev.debug_node) |prev_node| {
         // std.debug.print("{d}, {d}\n", .{prev_node.pos.x,prev_node.pos.y});
         table[current.pos.y][current.pos.x] = '#';
         current = prev_node;
@@ -227,7 +225,7 @@ fn printPath(node: *Node, weights: [110][110]u4, size: u8) void {
 
     for (0..size) |i| {
         std.debug.print("{s}     ", .{table[i][0..size]});
-        for(0..size) |k| {
+        for (0..size) |k| {
             if (table[i][k] == '#') {
                 std.debug.print("\x1b[1;33m{d}\x1b[0m", .{weights[i][k]});
             } else {
@@ -241,7 +239,6 @@ fn printPath(node: *Node, weights: [110][110]u4, size: u8) void {
 pub fn compareNodes(_: void, a: *Node, b: *Node) bool {
     return a.min_dist_weight < b.min_dist_weight;
 }
-
 
 const testResult = @import("utils.zig").testResult;
 
