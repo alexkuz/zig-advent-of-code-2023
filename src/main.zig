@@ -28,6 +28,7 @@ const day_runs = [_]DayRun{
     .{ .run = @import("day16.zig").day16, .data = "data/day16.txt" },
     .{ .run = @import("day17.zig").day17, .data = "data/day17.txt" },
     .{ .run = @import("day18.zig").day18, .data = "data/day18.txt" },
+    .{ .run = @import("day19.zig").day19, .data = "data/day19.txt" },
 };
 
 const stdout_file = std.io.getStdOut().writer();
@@ -44,9 +45,9 @@ const RESET = ESC ++ "0m";
 const RED_STAR = RED ++ "*" ++ RESET;
 const GREEN_STAR = GREEN ++ "*" ++ RESET;
 
-const TITLE = RED_STAR ++ " " ++ (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 3 ++
+const TITLE = (GREEN_STAR ++ " " ++ RED_STAR ++ " ") ** 4 ++
     GREEN ++ "Advent of Code 2023" ++
-    (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 3 ++ " " ++ RED_STAR;
+    (" " ++ RED_STAR ++ " " ++ GREEN_STAR) ** 4;
 
 fn task(run: anytype, data: []const u8, result: *Result, allocator: std.mem.Allocator) void {
     var timer = std.time.Timer.start() catch unreachable;
@@ -76,11 +77,11 @@ pub fn main() !void {
     const stdout = bw.writer();
 
     if (!no_print) {
-        try stdout.print("╭───────────────────────────────────────────────────╮\n", .{});
+        try stdout.print("╭───────────────────────────────────────────────────────╮\n", .{});
         try stdout.print("│  {s}  │\n", .{TITLE});
-        try stdout.print("├────────┬────────────────┬────────────────┬────────┤\n", .{});
-        try stdout.print("│        │         {s}Part 1{s} │         {s}Part 2{s} │        │\n", .{ CYAN, RESET, CYAN, RESET });
-        try stdout.print("├────────┼────────────────┼────────────────┼────────┤\n", .{});
+        try stdout.print("├────────┬──────────────────┬──────────────────┬────────┤\n", .{});
+        try stdout.print("│        │ {s}{s:>16}{s} │ {s}{s:>16}{s} │        │\n", .{ CYAN, "Part 1", RESET, CYAN, "Part 2", RESET });
+        try stdout.print("├────────┼──────────────────┼──────────────────┼────────┤\n", .{});
     }
 
     var timer = try std.time.Timer.start();
@@ -108,8 +109,8 @@ pub fn main() !void {
         if (!no_print) {
             var buf1: [32]u8 = undefined;
             var buf2: [32]u8 = undefined;
-            const part1 = if (no_spoilers) "*" ** 14 else try printNumber(result.part1, &buf1);
-            const part2 = if (no_spoilers) "*" ** 14 else try printNumber(result.part2, &buf2);
+            const part1 = if (no_spoilers) "*" ** 16 else try printNumber(result.part1, &buf1);
+            const part2 = if (no_spoilers) "*" ** 16 else try printNumber(result.part2, &buf2);
 
             var buf: [10]u8 = undefined;
             var time_str: []u8 = undefined;
@@ -133,14 +134,14 @@ pub fn main() !void {
     }
 
     if (!no_print) {
-        try stdout.print("├────────┼────────────────┴────────────────┴────────┤\n", .{});
+        try stdout.print("├────────┼──────────────────┴──────────────────┴────────┤\n", .{});
 
         const elapsed = timer.read();
         var buf: [100]u8 = undefined;
         const timeStr = try std.fmt.bufPrint(&buf, "{s}{d:.0}{s} μs (threaded), {s}{d:.0}{s} μs (total)", .{ WHITE, @as(f64, @floatFromInt(elapsed)) / 10E3, RESET, WHITE, @as(f64, @floatFromInt(totalTime)) / 10E3, RESET });
-        try stdout.print("│ {s}Time{s}   │ {s:<56} │\n", .{ YELLOW, RESET, timeStr });
+        try stdout.print("│ {s}Time{s}   │ {s:<60} │\n", .{ YELLOW, RESET, timeStr });
 
-        try stdout.print("╰────────┴──────────────────────────────────────────╯\n", .{});
+        try stdout.print("╰────────┴──────────────────────────────────────────────╯\n", .{});
     }
 
     try bw.flush();
@@ -148,9 +149,9 @@ pub fn main() !void {
 
 fn printNumber(num: i64, buf: []u8) ![]u8 {
     if (num >= 0) {
-        return try std.fmt.bufPrint(buf, "{d:>14}", .{@as(u64, @intCast(num))});
+        return try std.fmt.bufPrint(buf, "{d:>16}", .{@as(u64, @intCast(num))});
     } else {
-        return try std.fmt.bufPrint(buf, "{d:>14}", .{num});
+        return try std.fmt.bufPrint(buf, "{d:>16}", .{num});
     }
 }
 
