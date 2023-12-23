@@ -30,6 +30,7 @@ const day_runs = [_]DayRun{
     .{ .run = @import("day18.zig").day18, .data = "data/day18.txt" },
     .{ .run = @import("day19.zig").day19, .data = "data/day19.txt" },
     .{ .run = @import("day20.zig").day20, .data = "data/day20.txt" },
+    .{ .run = @import("day21.zig").day21, .data = "data/day21.txt" },
 };
 
 const stdout_file = std.io.getStdOut().writer();
